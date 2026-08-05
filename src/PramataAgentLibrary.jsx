@@ -304,11 +304,11 @@ const SK = {
 };
  
 // ── Firebase Realtime Database Config ─────────────────────────────────────────
-// Hardcoded so every viewer of the shared link reads/writes the SAME database.
+// Use Vite environment variables so the Firebase backend can be changed per deploy.
 // RTDB REST API is plain JSON — no type wrapping needed like Firestore.
-const FIREBASE_DB_URL = "https://pravesh-97f6a-default-rtdb.firebaseio.com";
-const FIREBASE_DB_PATH = "";
- 
+const FIREBASE_DB_URL = import.meta.env.VITE_FIREBASE_DB_URL || "https://pravesh-97f6a-default-rtdb.firebaseio.com";
+const FIREBASE_DB_PATH = import.meta.env.VITE_FIREBASE_DB_PATH || "";
+
 function rtdbUrl() {
   return FIREBASE_DB_PATH
     ? `${FIREBASE_DB_URL}/${FIREBASE_DB_PATH}.json`
