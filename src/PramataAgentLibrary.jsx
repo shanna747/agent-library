@@ -889,7 +889,7 @@ function AdminPinOverlay({ onSuccess, onClose }) {
   function go() { if (pin === "pramata2026") onSuccess(); else setErr("Incorrect PIN."); }
   return (
     <div style={S.pinOverlay} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={S.pinBox}>
+      <div style={S.pinBox} className="pin-box">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div>
             <div style={S.pinTitle}>Admin Access</div>
@@ -941,7 +941,7 @@ function LoginScreen({ onLogin }) {
       </div>
  
       {/* Card */}
-      <div style={{ ...S.loginCard, position: "relative", zIndex: 1 }}>
+      <div style={{ ...S.loginCard, position: "relative", zIndex: 1 }} className="login-card">
         <div style={{ display: "flex", alignItems: "flex-start", gap: 16, marginBottom: 28 }}>
           {/* AI chip icon */}
           <div style={{ flexShrink: 0, width: 52, height: 52, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -1083,7 +1083,7 @@ function AgentModal({ agent, solutions, clientNames, onSave, onClose, onAddSolut
  
   return (
     <div style={S.overlay} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={S.modal}>
+      <div style={S.modal} className="app-modal">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
           <div style={S.modalTitle}>{isEdit ? "Edit Agent" : "New Agent"}</div>
           <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "#aaa" }}><Ic.x /></button>
@@ -1525,27 +1525,32 @@ export default function AgentLibrary() {
     })();
   }, []);
  
-  // Agents write to Realtime Database (shared for everyone) AND local storage (fast fallback)
+  // Agents write to local storage always. Only admins push shared updates to Firebase.
   async function persistAgents(nextAgents) {
+    const canSyncRemote = FIREBASE_DB_URL && user?.role === "admin";
     setAgents(nextAgents);
     await persist(SK.agents, nextAgents);
-    if (FIREBASE_DB_URL) {
+    if (canSyncRemote) {
       setSyncStatus("saving");
       const result = await fbSave({ agents: nextAgents, solutions, clientNames });
       setSyncStatus(result.ok ? "live" : "error");
       setSyncErrorDetail(result.ok ? "" : result.error);
+    } else if (FIREBASE_DB_URL) {
+      setSyncStatus("local");
     }
   }
  
   async function persistSolutions(s) {
+    const canSyncRemote = FIREBASE_DB_URL && user?.role === "admin";
     setSolutions(s);
     await persist(SK.solutions, s);
-    if (FIREBASE_DB_URL) await fbSave({ agents, solutions: s, clientNames });
+    if (canSyncRemote) await fbSave({ agents, solutions: s, clientNames });
   }
   async function persistClientNames(n) {
+    const canSyncRemote = FIREBASE_DB_URL && user?.role === "admin";
     setClientNames(n);
     await persist(SK.clientNames, n);
-    if (FIREBASE_DB_URL) await fbSave({ agents, solutions, clientNames: n });
+    if (canSyncRemote) await fbSave({ agents, solutions, clientNames: n });
   }
  
   function exportAgents() {
@@ -1680,8 +1685,8 @@ export default function AgentLibrary() {
   );
  
   return (
-    <div style={S.app}>
-      <div style={S.hdr}>
+    <div style={S.app} className="app-shell">
+      <div style={S.hdr} className="app-header">
         <div><div style={S.logoText}>Agent Library</div><div style={S.logoSub}>Pramata Contract Intelligence</div></div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {isAdmin && (
@@ -1719,8 +1724,8 @@ export default function AgentLibrary() {
         </div>
       </div>
  
-      <div style={S.layout}>
-        <div style={S.sidebar}>
+      <div style={S.layout} className="app-layout">
+        <div style={S.sidebar} className="app-sidebar">
           <div style={S.sideSec}>
             <div style={S.sideLbl}>Library</div>
             <div style={S.sideItem(view === "library" && filterSolution === "All" && filterType === "All" && filterClient === "All")}
@@ -1782,7 +1787,7 @@ export default function AgentLibrary() {
           )}
         </div>
  
-        <div style={S.main}>
+        <div style={S.main} className="app-main">
           {view === "detail" && selected ? (
             <AgentDetail
               agent={agents.find(a => a.id === selected.id) || selected}
@@ -1797,13 +1802,13 @@ export default function AgentLibrary() {
             <>
               <div style={S.pageTitle}>{pageTitle}</div>
               <div style={S.pageSub}>{filtered.length} agent{filtered.length !== 1 ? "s" : ""}</div>
-              <div style={S.toolbar}>
-                <div style={S.searchWrap}>
+              <div style={S.toolbar} className="app-toolbar">
+                <div style={S.searchWrap} className="app-search-wrap">
                   <span style={S.searchIco}><Ic.search /></span>
                   <input style={S.searchInp} placeholder="Search agents or use cases…" value={search} onChange={e => setSearch(e.target.value)} />
                 </div>
                 {isAdmin && (
-                  <button style={S.btnP} onClick={() => { setEditAgent(null); setShowModal(true); }}>
+                  <button style={S.btnP} className="app-toolbar-button" onClick={() => { setEditAgent(null); setShowModal(true); }}>
                     <Ic.plus /> New Agent
                   </button>
                 )}
