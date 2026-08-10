@@ -1,1 +1,0 @@
-:root{--lightningcss-light:initial;--lightningcss-dark: ;color-scheme:light dark}@media (prefers-color-scheme:dark){:root{--lightningcss-light: ;--lightningcss-dark:initial}}html,body{height:100%;margin:0;padding:0}#root{min-height:100vh}
