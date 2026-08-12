@@ -1,0 +1,18 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": "auth != null && auth.token.admin === true",
+    "agents": {
+      ".read": true,
+      ".write": "auth != null && auth.token.admin === true"
+    },
+    "solutions": {
+      ".read": true,
+      ".write": "auth != null && auth.token.admin === true"
+    },
+    "clientNames": {
+      ".read": true,
+      ".write": "auth != null && auth.token.admin === true"
+    }
+  }
+}

@@ -42,6 +42,10 @@ html, body {
 
 .login-card {
   width: min(100%, 92vw) !important;
+  aspect-ratio: 1 / 1;
+  max-width: 440px;
+  max-height: min(440px, 92vw);
+  box-sizing: border-box;
 }
 
 .app-modal {

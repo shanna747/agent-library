@@ -30,16 +30,14 @@ const SEED_CLIENT_NAMES = [
   "Comacast"
 ];
  
-const AGENT_TYPES = [
-  "Account Assist", "Contract Request Assist", "Contract Request Form Assist",
-  "CRM Assist", "Custom Agentic Solutions", "Digitization", "Drafting Assist",
-  "Playbook and CAM Creator", "Report Assist", "Word Add-in",
-];
- 
 const CONTEXT_MODES = [
   { value: "ALL-DOCS", label: "ALL-DOCS", tip: "Use for Account Assist" },
   { value: "DOC-AT-A-TIME", label: "DOC-AT-A-TIME", tip: "Use for CAS Reporting" },
 ];
+
+const CLAUDE_PROXY_URL = import.meta.env.VITE_CLAUDE_ENDPOINT || "/api/claude";
+const CLAUDE_MODEL = import.meta.env.VITE_CLAUDE_MODEL || "claude-3.5-sonnet-latest";
+const CLAUDE_API_KEY = import.meta.env.VITE_CLAUDE_API_KEY || "";
  
 // ── STOP GATE ─────────────────────────────────────────────────────────────────
 // SEED_AGENTS only loads when JSONBin has no data yet (first run, or no credentials set).
@@ -572,7 +570,6 @@ function dlPackage(agent) {
       wHeading(safe(agent.name), 32, "023049"),
       `<w:p><w:pPr><w:spacing w:before="0" w:after="60"/></w:pPr></w:p>`,
       wLabelValue("Solution",     safe(agent.solution)),
-      wLabelValue("Agent Type",   safe(agent.agentType)),
       wLabelValue("Context Mode", safe(agent.contextMode)),
       wLabelValue("Version",      safe(agent.version)),
       wLabelValue("Created",      safe(agent.createdAt)),
@@ -744,11 +741,11 @@ const S = {
   loginWrap:  { minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#0a1628", position: "relative", overflow: "hidden" },
   loginAppName: { color: WHITE, fontWeight: 800, fontSize: 48, textAlign: "center", letterSpacing: "-0.02em" },
   loginAppSub:  { color: "rgba(255,255,255,0.55)", fontSize: 18, marginTop: 6, textAlign: "center" },
-  loginCard:  { background: "rgba(255,255,255,0.06)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: "36px 40px", width: 440, boxShadow: "0 32px 80px rgba(0,0,0,0.5)" },
+  loginCard:  { background: "rgba(255,255,255,0.06)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: "36px 40px 12px 40px", width: 440, boxShadow: "0 32px 80px rgba(0,0,0,0.5)" },
   lbl:        { fontSize: 14, fontWeight: 700, color: NAVY, marginBottom: 6, display: "block", textTransform: "uppercase", letterSpacing: "0.07em" },
   inp:        { width: "100%", padding: "10px 14px", border: "1.5px solid #ddd", borderRadius: 8, fontSize: 17, color: NAVY, outline: "none", boxSizing: "border-box" },
-  loginBtn:   { width: "100%", padding: "16px", background: CORAL, color: WHITE, border: "none", borderRadius: 12, fontWeight: 700, fontSize: 18, cursor: "pointer", marginTop: 24, letterSpacing: "0.01em" },
-  adminLink:  { marginTop: 24, textAlign: "center" },
+  loginBtn:   { width: "100%", padding: "16px", background: CORAL, color: WHITE, border: "none", borderRadius: 12, fontWeight: 700, fontSize: 18, cursor: "pointer", marginTop: 24, letterSpacing: "0.01em", marginBottom: "1rem" },
+  adminLink:  { marginTop: 0, textAlign: "center" },
   adminLinkBtn: { background: "none", border: "none", color: "rgba(255,255,255,0.35)", fontSize: 15, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 0" },
   pinOverlay: { position: "fixed", inset: 0, background: "rgba(2,48,73,0.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2000 },
   pinBox:     { background: WHITE, borderRadius: 14, padding: "32px 36px", width: 340, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" },
@@ -775,17 +772,48 @@ const S = {
   cardSuper:  { fontSize: 10, fontWeight: 700, color: STEEL, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6, display: "flex", alignItems: "center", gap: 5 },
   cardTitle:  { fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 8, lineHeight: 1.35 },
   cardDesc:   { fontSize: 15, color: "#777", lineHeight: 1.6, marginBottom: 14, flex: 1, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" },
-  cardFooter: { display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10, marginTop: "auto" },
+  cardFooter: { display: "flex", flexDirection: "column", gap: 10, marginTop: "auto" },
+  cardFooterTop: { display: "flex", flexDirection: "column", gap: 5 },
+  cardContextText: { fontSize: 13, fontWeight: 600, color: "#475467", letterSpacing: "0.04em" },
+  cardFooterDivider: { width: "100%", borderTop: "1px solid #e7eaee" },
+  cardFooterBottom: { display: "flex", alignItems: "center", flexWrap: "wrap", gap: 10, justifyContent: "space-between" },
+  cardStats:  { display: "flex", alignItems: "center", flexWrap: "wrap", gap: 12, color: "#7e8a99", fontSize: 13 },
+  metaItem:   { display: "inline-flex", alignItems: "center", gap: 4 },
+  metaDivider:{ color: "#d5d8de", fontWeight: 700 },
+  openBtn:    { border: "1px solid rgba(0,0,0,0.08)", background: "transparent", color: NAVY, borderRadius: 6, padding: "9px 14px", fontWeight: 700, fontSize: 14, cursor: "pointer", whiteSpace: "nowrap" },
   tag:        { display: "inline-flex", alignItems: "center", gap: 3, padding: "3px 8px", background: `${STEEL}18`, color: STEEL, borderRadius: 4, fontSize: 14, fontWeight: 600 },
   tagNavy:    { display: "inline-flex", alignItems: "center", gap: 3, padding: "3px 8px", background: `${NAVY}0D`, color: NAVY, borderRadius: 4, fontSize: 14, fontWeight: 600 },
   tagCoral:   { display: "inline-flex", alignItems: "center", gap: 3, padding: "3px 8px", background: `${CORAL}14`, color: CORAL, borderRadius: 4, fontSize: 14, fontWeight: 600 },
   dlCount:    { display: "inline-flex", alignItems: "center", gap: 4, fontSize: 14, color: "#bbb", fontWeight: 500 },
   ver:        { fontSize: 14, color: "#ccc", fontWeight: 500 },
   backBtn:    { display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 14px", background: "none", color: "#777", border: "none", borderRadius: 7, fontWeight: 500, fontSize: 16, cursor: "pointer", marginBottom: 18 },
-  detailHdr:  { background: WHITE, borderRadius: 12, border: `1.5px solid ${TAN}`, padding: 28, marginBottom: 18 },
+  detailHdr:  { background: WHITE, borderRadius: 12, border: `1.5px solid ${TAN}`, padding: 28, marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 20 },
+  detailLeft: { flex: 1, minWidth: 0 },
+  detailRight: { display: "flex", flexDirection: "column", gap: 12, alignItems: "flex-end" },
+  detailDesc: { fontSize: 15, color: "#556", marginTop: 6, marginBottom: 6, lineHeight: 1.4 },
   detailTitle: { fontSize: 27, fontWeight: 700, color: NAVY, marginBottom: 10 },
   detailMeta: { display: "flex", gap: 14, fontSize: 15, color: "#aaa", marginBottom: 14, flexWrap: "wrap", alignItems: "center" },
+  metaItemSmall: { display: "flex", alignItems: "center", gap: 10, color: "#5a6e78" },
+  metaIcon: { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, borderRadius: 6, background: "#f5f7f8", color: "#7b8f99", fontSize: 13, fontWeight: 700 },
+  metaLabel: { fontSize: 12, color: "#8b97a1", fontWeight: 700, textTransform: "none" },
+  metaValue: { fontSize: 15, color: NAVY, fontWeight: 700 },
   detailActs: { display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 },
+  detailBody: { display: "grid", gap: 24 },
+  detailGrid: { display: "grid", gap: 24 },
+  libraryGrid: { display: "grid", gridTemplateColumns: "minmax(0, 1fr) 360px", gap: 24, alignItems: "start" },
+  buildPanel: { background: WHITE, borderRadius: 12, border: `1.5px solid ${TAN}`, padding: 24, position: "sticky", top: 32 },
+  buildTitle: { fontSize: 20, fontWeight: 700, color: NAVY, marginBottom: 10 },
+  buildSubtitle: { fontSize: 14, lineHeight: 1.7, color: "#556", marginBottom: 18 },
+  buildField: { marginBottom: 18 },
+  buildLabel: { fontSize: 12, fontWeight: 700, color: "#63738e", letterSpacing: "0.08em", marginBottom: 8, display: "block", textTransform: "uppercase" },
+  buildInput: { width: "100%", padding: "12px 14px", border: "1.5px solid #ddd", borderRadius: 10, fontSize: 15, color: NAVY, outline: "none", boxSizing: "border-box" },
+  buildTextarea: { width: "100%", minHeight: 110, padding: "12px 14px", border: "1.5px solid #ddd", borderRadius: 10, fontSize: 15, color: NAVY, outline: "none", boxSizing: "border-box", resize: "vertical", fontFamily: "inherit" },
+  buildSelect: { width: "100%", padding: "12px 14px", border: "1.5px solid #ddd", borderRadius: 10, fontSize: 15, color: NAVY, background: WHITE, outline: "none", boxSizing: "border-box" },
+  buildHint: { fontSize: 12, color: "#999", marginTop: 4, textAlign: "right" },
+  buildButtons: { display: "flex", gap: 12, marginTop: 16 },
+  launchBtn: { display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 16px", background: CORAL, color: WHITE, border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer" },
+  metaRow: { display: "flex", gap: 24, alignItems: "center", padding: "14px 28px", marginTop: 12, borderTop: "1px solid #eef2f4", background: "transparent" },
+  metaSep: { width: 1, height: 28, background: "#eef2f4" },
   section:    { background: WHITE, borderRadius: 12, border: `1.5px solid ${TAN}`, padding: 24, marginBottom: 14 },
   secTitle:   { fontSize: 15, fontWeight: 700, color: NAVY, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 14, paddingBottom: 10, borderBottom: `1px solid ${TAN}` },
   tabRow:     { display: "flex", gap: 0, marginBottom: 16, borderBottom: `1.5px solid ${TAN}` },
@@ -942,7 +970,7 @@ function LoginScreen({ onLogin }) {
  
       {/* Card */}
       <div style={{ ...S.loginCard, position: "relative", zIndex: 1 }} className="login-card">
-        <div style={{ display: "flex", alignItems: "flex-start", gap: 16, marginBottom: 28 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 16, marginBottom: 16 }}>
           {/* AI chip icon */}
           <div style={{ flexShrink: 0, width: 52, height: 52, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
@@ -991,24 +1019,23 @@ function LoginScreen({ onLogin }) {
 }
  
 // ── Agent Modal ──────────────────────────────────────────────────────────────
-function AgentModal({ agent, solutions, clientNames, onSave, onClose, onAddSolution, onAddClientName }) {
+function AgentModal({ agent, user, solutions, clientNames, onSave, onClose, onAddSolution, onAddClientName }) {
   const isEdit = !!agent?.id;
+  const isClient = user?.role === "client";
+  if (user?.role !== "admin") return null;
   const blank = {
-    id: "", name: "", solution: "", agentTypes: [], contextMode: "",
+    id: "", name: "", solution: "", contextMode: "",
     downloads: 0, useCase: "",
+    analysisInstructions: "",
     prompts: [{ id: "p1", label: "Primary Prompt", type: "english", content: "" }],
     config: { llmTier: "Balanced", model: "", notes: "" },
     version: "1.0", createdAt: toDay(), updatedAt: toDay(),
     clientTags: [],
   };
  
-  // Migrate legacy single agentType string to array
   const initForm = () => {
     if (!agent) return blank;
     const base = { ...agent };
-    if (!Array.isArray(base.agentTypes)) {
-      base.agentTypes = base.agentType ? [base.agentType] : [];
-    }
     if (!Array.isArray(base.clientTags)) base.clientTags = [];
     return base;
   };
@@ -1020,6 +1047,11 @@ function AgentModal({ agent, solutions, clientNames, onSave, onClose, onAddSolut
   const [newClient, setNewClient] = useState("");
   const [showNewClient, setShowNewClient] = useState(false);
  
+  const title = isEdit ? "Edit Agent" : isClient ? "Build Agent" : "New Agent";
+  const actionLabel = isEdit
+    ? (form.status === "Draft" ? "Publish Agent" : "Save Changes")
+    : isClient ? "Build Agent" : "Create Agent";
+ 
   const set    = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const setCfg = (k, v) => setForm(f => ({ ...f, config: { ...f.config, [k]: v } }));
   const setPF  = (i, k, v) => {
@@ -1027,12 +1059,6 @@ function AgentModal({ agent, solutions, clientNames, onSave, onClose, onAddSolut
     ps[i] = { ...ps[i], [k]: v };
     setForm(f => ({ ...f, prompts: ps }));
   };
- 
-  function toggleType(t) {
-    const cur = form.agentTypes || [];
-    const next = cur.includes(t) ? cur.filter(x => x !== t) : [...cur, t];
-    set("agentTypes", next);
-  }
  
   function toggleClientTag(name) {
     const cur = form.clientTags || [];
@@ -1072,11 +1098,18 @@ function AgentModal({ agent, solutions, clientNames, onSave, onClose, onAddSolut
   function doSave() {
     if (!form.name.trim())    return setErr("Agent name is required.");
     if (!form.useCase.trim()) return setErr("Use case is required.");
+    const basePrompt = form.prompts[0] || { id: "p1", label: "Primary Prompt", type: "english", content: "" };
+    const promptContent = basePrompt.content.trim() || `Analyze contract information using Pramata variables like {{MASTER}} and {{DOCUMENT}}. ${form.analysisInstructions}`.trim();
+    const prompts = [
+      { ...basePrompt, content: promptContent },
+      ...form.prompts.slice(1),
+    ];
     onSave({
       ...form,
+      prompts,
+      status: form.status === "Draft" ? "Published" : form.status || "Published",
       id: form.id || genId(),
       updatedAt: toDay(),
-      agentType: (form.agentTypes || [])[0] || "",  // keep legacy field for compat
       config: { ...form.config, model: LLM_MODELS[form.config.llmTier] || form.config.model },
     });
   }
@@ -1085,7 +1118,7 @@ function AgentModal({ agent, solutions, clientNames, onSave, onClose, onAddSolut
     <div style={S.overlay} onClick={e => e.target === e.currentTarget && onClose()}>
       <div style={S.modal} className="app-modal">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
-          <div style={S.modalTitle}>{isEdit ? "Edit Agent" : "New Agent"}</div>
+          <div style={S.modalTitle}>{title}</div>
           <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "#aaa" }}><Ic.x /></button>
         </div>
         {err && <div style={S.err}>{err}</div>}
@@ -1129,23 +1162,6 @@ function AgentModal({ agent, solutions, clientNames, onSave, onClose, onAddSolut
           </div>
         </div>
  
-        {/* Agent Type — multi-select checkboxes */}
-        <div style={{ ...S.fRow, background: LIGHT, borderRadius: 10, padding: "14px 16px", border: `1px solid ${TAN}` }}>
-          <label style={{ ...S.lbl, marginBottom: 10 }}>Agent Type <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0, color: "#aaa" }}>(select all that apply)</span></label>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 12px" }}>
-            {AGENT_TYPES.map(t => {
-              const checked = (form.agentTypes || []).includes(t);
-              return (
-                <label key={t} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 14, color: checked ? NAVY : "#555", fontWeight: checked ? 600 : 400, padding: "4px 0" }}>
-                  <input type="checkbox" checked={checked} onChange={() => toggleType(t)}
-                    style={{ accentColor: CORAL, width: 15, height: 15, cursor: "pointer", flexShrink: 0 }} />
-                  {t}
-                </label>
-              );
-            })}
-          </div>
-        </div>
- 
         {/* Client Tags */}
         <div style={{ ...S.fRow, background: LIGHT, borderRadius: 10, padding: "14px 16px", border: `1px solid ${TAN}` }}>
           <label style={{ ...S.lbl, marginBottom: 10 }}>Client Tags</label>
@@ -1176,6 +1192,14 @@ function AgentModal({ agent, solutions, clientNames, onSave, onClose, onAddSolut
               <button type="button" style={{ ...S.btnG, padding: "6px 10px", fontSize: 13 }} onClick={() => { setShowNewClient(false); setNewClient(""); }}>Cancel</button>
             </div>
           )}
+        </div>
+ 
+        <div style={{ marginBottom: 18, padding: "16px 18px", background: LIGHT, borderRadius: 14, border: `1px solid ${TAN}` }}>
+          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 10 }}>Build your agent with Claude-style guidance</div>
+          <div style={{ fontSize: 13, lineHeight: 1.7, color: "#444" }}>
+            1. Describe your use case.<br />
+            2. How would you like your agent to analyze contract information? Use Pramata variables like <code>{{MASTER}}</code> and <code>{{DOCUMENT}}</code>.
+          </div>
         </div>
  
         <div style={S.fRow}>
@@ -1218,6 +1242,16 @@ function AgentModal({ agent, solutions, clientNames, onSave, onClose, onAddSolut
               onChange={e => set("useCase", e.target.value)}
               placeholder="Describe the client problem this agent solves..." />
           </div>
+        </div>
+ 
+        <div style={S.fRow}>
+          <label style={S.lbl}>Contract analysis guidance</label>
+          <textarea
+            style={{ ...S.ta, minHeight: 80 }}
+            value={form.analysisInstructions}
+            onChange={e => set("analysisInstructions", e.target.value)}
+            placeholder="e.g. Extract {{MASTER}} and {{DOCUMENT}} values and summarize the key obligations by section..."
+          />
         </div>
  
         {/* Prompts — tabs always Prompt 1, Prompt 2… */}
@@ -1264,7 +1298,7 @@ function AgentModal({ agent, solutions, clientNames, onSave, onClose, onAddSolut
  
         <div style={S.modalFoot}>
           <button style={S.btnS} onClick={onClose}>Cancel</button>
-          <button style={S.btnP} onClick={doSave}>{isEdit ? "Save Changes" : "Create Agent"}</button>
+          <button style={S.btnP} onClick={doSave}>{actionLabel}</button>
         </div>
       </div>
  
@@ -1343,118 +1377,119 @@ function AgentDetail({ agent, user, onBack, onEdit, onDelete, onDownload, onRemo
       <button style={S.backBtn} onClick={onBack}><Ic.back /> All Agents</button>
  
       <div style={S.detailHdr}>
-        {agent.solution && (
-          <div style={{ marginBottom: 10 }}>
-            <span style={S.tagNavy}><Ic.zap /> {agent.solution}</span>
+        <div style={S.detailLeft}>
+          {agent.solution && (
+            <div style={{ marginBottom: 10 }}>
+              <span style={S.tagNavy}><Ic.zap /> {agent.solution}</span>
+            </div>
+          )}
+
+          <div style={S.detailTitle}>{agent.name}</div>
+          <div style={S.detailDesc}>{agent.useCase}</div>
+        </div>
+
+        <div style={S.detailRight}>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button style={S.launchBtn} onClick={() => { /* launch not implemented */ }}>Launch Agent</button>
+            <button style={S.btnP} onClick={() => onDownload(agent)}><Ic.dl /> Download</button>
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            {isAdmin && <button style={S.btnS} onClick={() => onEdit(agent)}><Ic.edit /> Edit</button>}
+            {isAdmin && <button style={{ ...S.btnG, color: CORAL, borderColor: `${CORAL}40` }} onClick={() => onDelete(agent.id)}><Ic.trash /> Delete</button>}
+          </div>
+        </div>
+      </div>
+
+      <div style={S.metaRow}>
+        <div style={S.metaItemSmall}>
+          <span style={S.metaIcon}>v</span>
+          <div>
+            <div style={S.metaLabel}>Version</div>
+            <div style={S.metaValue}>v{agent.version}</div>
+          </div>
+        </div>
+
+        <div style={S.metaItemSmall}>
+          <span style={S.metaIcon}>⟳</span>
+          <div>
+            <div style={S.metaLabel}>Updated</div>
+            <div style={S.metaValue}>{agent.updatedAt || "Unknown date"}</div>
+          </div>
+        </div>
+
+        <div style={S.metaItemSmall}>
+          <span style={S.metaIcon}>💬</span>
+          <div>
+            <div style={S.metaLabel}>Prompts</div>
+            <div style={S.metaValue}>{agent.prompts.length}</div>
+          </div>
+        </div>
+
+        <div style={S.metaItemSmall}>
+          <span style={S.metaIcon}><Ic.dl /></span>
+          <div>
+            <div style={S.metaLabel}>Downloads</div>
+            <div style={S.metaValue}>{agent.downloads || 0}</div>
+          </div>
+        </div>
+
+        {agent.contextMode && (
+          <div style={S.metaItemSmall}>
+            <span style={S.metaIcon}>📚</span>
+            <div>
+              <div style={S.metaLabel}>Context</div>
+              <div style={S.metaValue}>{agent.contextMode}</div>
+            </div>
           </div>
         )}
- 
-        <div style={S.detailTitle}>{agent.name}</div>
-        <div style={S.detailMeta}>
-          <span>v{agent.version}</span><span>·</span>
-          <span>Updated {agent.updatedAt}</span><span>·</span>
-          <span>{agent.prompts.length} prompt{agent.prompts.length !== 1 ? "s" : ""}</span><span>·</span>
-          <span style={S.dlCount}><Ic.dl /> {agent.downloads || 0} download{(agent.downloads || 0) !== 1 ? "s" : ""}</span>
-        </div>
- 
-        {/* Context mode + LLM tier + Agent types */}
-        <div style={{ display: "flex", gap: 28, marginBottom: 14, alignItems: "center", flexWrap: "wrap" }}>
-          {agent.contextMode && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 14, fontWeight: 700, color: STEEL, textTransform: "uppercase", letterSpacing: "0.07em" }}>Context</span>
-              <span style={{ fontSize: 16, fontWeight: 500, color: "#7AACBE" }}>{agent.contextMode}</span>
-              {ctip && (
-                <span style={{ position: "relative", color: STEEL, cursor: "help", display: "inline-flex", alignItems: "center" }}
-                  onMouseEnter={() => setCtip(true)}
-                  onMouseLeave={() => setCtip(false)}>
-                  <Ic.info />
-                  {showCtip && (
-                    <span style={{ position: "absolute", left: "50%", bottom: "calc(100% + 6px)", transform: "translateX(-50%)", background: NAVY, color: WHITE, fontSize: 14, padding: "6px 10px", borderRadius: 6, whiteSpace: "nowrap", zIndex: 100, boxShadow: "0 4px 12px rgba(0,0,0,0.25)" }}>
-                      {ctip.tip}
-                    </span>
-                  )}
-                </span>
-              )}
+
+        {agent.config?.llmTier && (
+          <div style={S.metaItemSmall}>
+            <span style={S.metaIcon}>⚙️</span>
+            <div>
+              <div style={S.metaLabel}>LLM Tier</div>
+              <div style={S.metaValue}>{agent.config.llmTier}</div>
             </div>
-          )}
-          {agent.config?.llmTier && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 14, fontWeight: 700, color: STEEL, textTransform: "uppercase", letterSpacing: "0.07em" }}>LLM Tier</span>
-              <span style={{ fontSize: 16, fontWeight: 500, color: "#7AACBE" }}>{agent.config.llmTier}</span>
+          </div>
+        )}
+      </div>
+ 
+      <div style={S.detailBody}>
+        <div style={S.detailGrid}>
+          <div>
+            <div style={S.section}>
+              <div style={S.secTitle}>Use Case</div>
+              <div style={{ fontSize: 17, color: "#444", lineHeight: 1.75 }}>
+                {(agent.useCase || "").split("\n").map((line, i) => {
+                  const isBullet = line.startsWith("• ") || line.startsWith("- ");
+                  const text = isBullet ? line.slice(2) : line;
+                  const parts = text.split(/(\*\*[^*]+\*\*)/g).map((part, j) =>
+                    part.startsWith("**") && part.endsWith("**")
+                      ? <strong key={j}>{part.slice(2, -2)}</strong>
+                      : part
+                  );
+                  if (isBullet) return (
+                    <div key={i} style={{ display: "flex", gap: 10, marginBottom: 4 }}>
+                      <span style={{ color: STEEL, fontWeight: 700, flexShrink: 0 }}>•</span>
+                      <span>{parts}</span>
+                    </div>
+                  );
+                  return <div key={i} style={{ marginBottom: line ? 4 : 8 }}>{parts}</div>;
+                })}
+              </div>
             </div>
-          )}
-          {(Array.isArray(agent.agentTypes) ? agent.agentTypes : [agent.agentType]).filter(Boolean).length > 0 && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 14, fontWeight: 700, color: STEEL, textTransform: "uppercase", letterSpacing: "0.07em" }}>Agent Type</span>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {(Array.isArray(agent.agentTypes) ? agent.agentTypes : [agent.agentType]).filter(Boolean).map(t => (
-                  <span key={t} style={{ fontSize: 13, fontWeight: 500, color: "#7AACBE" }}>{t}</span>
+ 
+            <div style={S.section}>
+              <div style={S.secTitle}>Prompts</div>
+              <div style={S.tabRow}>
+                {agent.prompts.map((_, i) => (
+                  <button key={i} style={S.tab(ap === i)} onClick={() => setAp(i)}>Prompt {i + 1}</button>
                 ))}
               </div>
+              {agent.prompts.map((p, i) => i !== ap ? null : <PromptViewer key={i} content={p.content} />)}
             </div>
-          )}
-        </div>
- 
-        <div style={S.detailActs}>
-          <button style={S.btnP} onClick={() => onDownload(agent)}><Ic.dl /> Agent Package</button>
-          {isAdmin && <>
-            <button style={S.btnS} onClick={() => onEdit(agent)}><Ic.edit /> Edit Agent</button>
-            <button style={{ ...S.btnG, color: CORAL, borderColor: `${CORAL}40` }} onClick={() => onDelete(agent.id)}><Ic.trash /> Delete</button>
-          </>}
-        </div>
- 
-        {/* Client tags — detail view only, admin can remove */}
-        {(agent.clientTags || []).length > 0 && (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 14 }}>
-            {(agent.clientTags || []).map(name => (
-              <span key={name} style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500, color: "#5a6e78", background: "transparent", border: "1px solid #b0c4cc", letterSpacing: "0.01em" }}>
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                {name}
-                {isAdmin && (
-                  <button onClick={() => onRemoveClientTag(agent.id, name)}
-                    style={{ background: "none", border: "none", cursor: "pointer", padding: 0, marginLeft: 2, color: "#aaa", display: "inline-flex", alignItems: "center", lineHeight: 1 }}
-                    title={`Remove ${name}`}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                  </button>
-                )}
-              </span>
-            ))}
           </div>
-        )}
-      </div>
- 
-      <div style={S.section}>
-        <div style={S.secTitle}>Use Case</div>
-        <div style={{ fontSize: 17, color: "#444", lineHeight: 1.75 }}>
-          {(agent.useCase || "").split("\n").map((line, i) => {
-            // Render bullet lines
-            const isBullet = line.startsWith("• ") || line.startsWith("- ");
-            const text = isBullet ? line.slice(2) : line;
-            // Render **bold** inline
-            const parts = text.split(/(\*\*[^*]+\*\*)/g).map((part, j) =>
-              part.startsWith("**") && part.endsWith("**")
-                ? <strong key={j}>{part.slice(2, -2)}</strong>
-                : part
-            );
-            if (isBullet) return (
-              <div key={i} style={{ display: "flex", gap: 10, marginBottom: 4 }}>
-                <span style={{ color: STEEL, fontWeight: 700, flexShrink: 0 }}>•</span>
-                <span>{parts}</span>
-              </div>
-            );
-            return <div key={i} style={{ marginBottom: line ? 4 : 8 }}>{parts}</div>;
-          })}
         </div>
-      </div>
- 
-      <div style={S.section}>
-        <div style={S.secTitle}>Prompts</div>
-        <div style={S.tabRow}>
-          {agent.prompts.map((_, i) => (
-            <button key={i} style={S.tab(ap === i)} onClick={() => setAp(i)}>Prompt {i + 1}</button>
-          ))}
-        </div>
-        {agent.prompts.map((p, i) => i !== ap ? null : <PromptViewer key={i} content={p.content} />)}
       </div>
  
     </div>
@@ -1476,10 +1511,13 @@ export default function AgentLibrary() {
   const [editAgent,      setEditAgent]     = useState(null);
   const [search,         setSearch]        = useState("");
   const [filterSolution, setFilterSolution] = useState("All");
-  const [filterType,     setFilterType]    = useState("All");
   const [filterClient,   setFilterClient]  = useState("All");
-  const [typeCollapsed,  setTypeCollapsed] = useState(true);
   const [clientCollapsed,setClientCollapsed] = useState(false);
+  const [draftAgent,     setDraftAgent]     = useState({
+    name: "", useCase: "", prompt: "", modelSelection: "", knowledgeSource: ""
+  });
+  const [draftError,     setDraftError]     = useState("");
+  const [draftGenerating, setDraftGenerating] = useState(false);
  
   useEffect(() => {
     (async () => {
@@ -1553,6 +1591,109 @@ export default function AgentLibrary() {
     if (canSyncRemote) await fbSave({ agents, solutions, clientNames: n });
   }
  
+  function handleDraftChange(key, value) {
+    setDraftAgent(prev => ({ ...prev, [key]: value }));
+  }
+ 
+  async function callClaudeBuildAgent({ name, useCase, prompt, modelSelection, knowledgeSource }) {
+    const instruction = `You are Claude, a generative AI assistant that builds Pramata agent definitions. Create a valid JSON object only, no explanation or markdown. The JSON must include: solution, contextMode, prompts, config. Use the user-provided name, use case, model selection, and knowledge source to generate the agent. Return prompts array items with id, label, type, and content. Use Pramata variables such as {{MASTER}} and {{DOCUMENT}} where appropriate.`;
+    const requestBody = {
+      model: CLAUDE_MODEL,
+      max_tokens: 1200,
+      temperature: 0.2,
+      top_p: 1,
+      system: instruction,
+      messages: [
+        { role: "user", content: `Agent Name: ${name}\nUse Case: ${useCase}\nPrompt / Instructions: ${prompt}\nModel Selection: ${modelSelection}\nKnowledge Source: ${knowledgeSource}` }
+      ],
+    };
+
+    const headers = {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "anthropic-version": "2023-06-01",
+    };
+
+    if (CLAUDE_API_KEY) {
+      headers["x-api-key"] = CLAUDE_API_KEY;
+      headers["anthropic-dangerous-direct-browser-access"] = "true";
+    }
+
+    const res = await fetch(CLAUDE_PROXY_URL, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Claude request failed: ${res.status} ${text}`);
+    }
+
+    const data = await res.json();
+    const content = data?.content?.map?.(item => item?.text || "").join("") || data?.choices?.[0]?.message?.content || data?.completion || "";
+    if (!content) throw new Error("No content returned from Claude.");
+    const json = extractJsonObject(content);
+    return json;
+  }
+
+  function extractJsonObject(text) {
+    const candidate = text.trim().replace(/^[^\{\[]+/, "").replace(/[^\}\]]+$/, "");
+    try {
+      return JSON.parse(candidate);
+    } catch (err) {
+      const match = text.match(/(\{[\s\S]*\})/);
+      if (!match) throw err;
+      return JSON.parse(match[1]);
+    }
+  }
+
+  async function createAgentFromDraft() {
+    if (user?.role !== "admin") {
+      setDraftError("Only admins can create agents.");
+      return;
+    }
+    if (!draftAgent.name.trim())    return setDraftError("Agent name is required.");
+    if (!draftAgent.useCase.trim()) return setDraftError("Use case is required.");
+    if (!draftAgent.prompt.trim())  return setDraftError("Prompt / Instructions are required.");
+    if (!draftAgent.modelSelection.trim()) return setDraftError("Model selection is required.");
+
+    setDraftError("");
+    setDraftGenerating(true);
+    try {
+      const generated = await callClaudeBuildAgent(draftAgent);
+      const nextAgent = {
+        id: genId(),
+        name: draftAgent.name.trim(),
+        solution: generated.solution || "",
+        contextMode: generated.contextMode || "",
+        downloads: 0,
+        useCase: draftAgent.useCase.trim(),
+        prompts: Array.isArray(generated.prompts) ? generated.prompts : [{ id: "p1", label: "Primary Prompt", type: "english", content: draftAgent.prompt.trim() }],
+        config: {
+          llmTier: generated.config?.llmTier || "Balanced",
+          model: generated.config?.model || draftAgent.modelSelection,
+          notes: generated.config?.notes || draftAgent.knowledgeSource.trim(),
+        },
+        version: "1.0",
+        createdAt: toDay(),
+        updatedAt: toDay(),
+        clientTags: [],
+        knowledgeSource: draftAgent.knowledgeSource.trim(),
+        status: "Draft",
+      };
+      const next = [...agents, nextAgent];
+      await persistAgents(next);
+      setDraftAgent({ name: "", useCase: "", prompt: "", modelSelection: "", knowledgeSource: "" });
+      setEditAgent(nextAgent);
+      setShowModal(true);
+    } catch (err) {
+      setDraftError(err.message || "Claude generation failed.");
+    } finally {
+      setDraftGenerating(false);
+    }
+  }
+ 
   function exportAgents() {
     const data = { agents, clientNames, solutions, exportedAt: toDay() };
     const json = JSON.stringify(data, null, 2);
@@ -1623,6 +1764,7 @@ export default function AgentLibrary() {
   function addClientName(name) { if (!clientNames.includes(name)) persistClientNames([...clientNames, name]); }
  
   function saveAgent(agent) {
+    if (user?.role !== "admin") return;
     const exists = agents.find(a => a.id === agent.id);
     const next = exists ? agents.map(a => a.id === agent.id ? agent : a) : [...agents, agent];
     persistAgents(next);
@@ -1653,19 +1795,13 @@ export default function AgentLibrary() {
   }
  
   const solCounts  = solutions.reduce((acc, s) => { acc[s] = agents.filter(a => a.solution === s).length; return acc; }, {});
-  const typeCounts = AGENT_TYPES.reduce((acc, t) => {
-    acc[t] = agents.filter(a => (Array.isArray(a.agentTypes) ? a.agentTypes : [a.agentType]).includes(t)).length;
-    return acc;
-  }, {});
   const taggedClients = clientNames.filter(n => agents.some(a => (a.clientTags || []).includes(n)));
  
   const filtered = agents.filter(a => {
     const ms = !search || (a.name.toLowerCase().includes(search.toLowerCase()) || a.useCase.toLowerCase().includes(search.toLowerCase()) || (a.solution || "").toLowerCase().includes(search.toLowerCase()));
     const mSol    = filterSolution === "All" || a.solution === filterSolution;
-    const aTypes  = Array.isArray(a.agentTypes) ? a.agentTypes : [a.agentType];
-    const mType   = filterType === "All" || aTypes.includes(filterType);
     const mClient = filterClient === "All" || (a.clientTags || []).includes(filterClient);
-    return ms && mSol && mType && mClient;
+    return ms && mSol && mClient;
   });
  
   if (!user)   return <LoginScreen onLogin={handleLogin} />;
@@ -1674,9 +1810,7 @@ export default function AgentLibrary() {
   const isAdmin = user.role === "admin";
   let pageTitle = "All Agents";
   if (filterClient !== "All") pageTitle = filterClient;
-  else if (filterSolution !== "All" && filterType === "All") pageTitle = filterSolution;
-  else if (filterType !== "All" && filterSolution === "All") pageTitle = filterType;
-  else if (filterSolution !== "All" && filterType !== "All") pageTitle = `${filterSolution} · ${filterType}`;
+  else if (filterSolution !== "All") pageTitle = filterSolution;
  
   const chevron = (collapsed) => (
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -1717,7 +1851,7 @@ export default function AgentLibrary() {
               </label>
             </div>
           )}
-          <div style={S.badge} onClick={() => { setUser(null); setView("library"); setSelected(null); setSearch(""); setFilterSolution("All"); setFilterType("All"); setFilterClient("All"); }}>
+          <div style={S.badge} onClick={() => { setUser(null); setView("library"); setSelected(null); setSearch(""); setFilterSolution("All"); setFilterClient("All"); }}>
             <div><div style={S.badgeName}>{user.name}</div></div>
             <div style={{ fontSize: 11, color: "#888", marginLeft: 6 }}>Sign out</div>
           </div>
@@ -1728,8 +1862,8 @@ export default function AgentLibrary() {
         <div style={S.sidebar} className="app-sidebar">
           <div style={S.sideSec}>
             <div style={S.sideLbl}>Library</div>
-            <div style={S.sideItem(view === "library" && filterSolution === "All" && filterType === "All" && filterClient === "All")}
-              onClick={() => { setFilterSolution("All"); setFilterType("All"); setFilterClient("All"); setView("library"); setSelected(null); }}>
+            <div style={S.sideItem(view === "library" && filterSolution === "All" && filterClient === "All")}
+              onClick={() => { setFilterSolution("All"); setFilterClient("All"); setView("library"); setSelected(null); }}>
               <span>All Agents</span><span style={S.sideCount}>{agents.length}</span>
             </div>
           </div>
@@ -1738,8 +1872,8 @@ export default function AgentLibrary() {
             <div style={S.sideSec}>
               <div style={S.sideLbl}>By Solution</div>
               {solutions.filter(s => solCounts[s] > 0).map(s => (
-                <div key={s} style={S.sideItem(view === "library" && filterSolution === s && filterType === "All" && filterClient === "All")}
-                  onClick={() => { setFilterSolution(s); setFilterType("All"); setFilterClient("All"); setView("library"); setSelected(null); }}>
+                <div key={s} style={S.sideItem(view === "library" && filterSolution === s && filterClient === "All")}
+                  onClick={() => { setFilterSolution(s); setFilterClient("All"); setView("library"); setSelected(null); }}>
                   <span>{s}</span>
                 </div>
               ))}
@@ -1755,28 +1889,13 @@ export default function AgentLibrary() {
               </div>
               {!clientCollapsed && taggedClients.map(n => (
                 <div key={n} style={S.sideItem(view === "library" && filterClient === n)}
-                  onClick={() => { setFilterClient(n); setFilterSolution("All"); setFilterType("All"); setView("library"); setSelected(null); }}>
+                  onClick={() => { setFilterClient(n); setFilterSolution("All"); setView("library"); setSelected(null); }}>
                   <span>{n}</span>
                 </div>
               ))}
             </div>
           )}
  
-          {AGENT_TYPES.filter(t => typeCounts[t] > 0).length > 0 && (
-            <div style={S.sideSec}>
-              <div style={{ ...S.sideLbl, display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", userSelect: "none" }}
-                onClick={() => setTypeCollapsed(c => !c)}>
-                <span>By Agent Type</span>
-                <span style={{ marginRight: 8, color: NAVY }}>{chevron(typeCollapsed)}</span>
-              </div>
-              {!typeCollapsed && AGENT_TYPES.filter(t => typeCounts[t] > 0).map(t => (
-                <div key={t} style={S.sideItem(view === "library" && filterType === t && filterSolution === "All" && filterClient === "All")}
-                  onClick={() => { setFilterType(t); setFilterSolution("All"); setFilterClient("All"); setView("library"); setSelected(null); }}>
-                  <span>{t}</span>
-                </div>
-              ))}
-            </div>
-          )}
  
           {isAdmin && (
             <div style={S.sideSec}>
@@ -1813,41 +1932,83 @@ export default function AgentLibrary() {
                   </button>
                 )}
               </div>
-              {filtered.length === 0 ? (
-                <div style={S.empty}>
-                  <div style={{ fontSize: 44, marginBottom: 14 }}>🤖</div>
-                  <div style={{ fontSize: 19, fontWeight: 600, color: "#999", marginBottom: 8 }}>No agents found</div>
-                  <div style={{ fontSize: 16, color: "#ccc" }}>Try a different filter or search{isAdmin ? ", or create a new agent" : ""}.</div>
-                </div>
-              ) : (
-                <div style={S.grid}>
-                  {filtered.map(agent => (
-                    <div key={agent.id} style={S.card}
-                      onClick={() => { setSelected(agent); setView("detail"); }}
-                      onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 8px 24px rgba(2,48,73,0.11)`; e.currentTarget.style.borderColor = STEEL; }}
-                      onMouseLeave={e => { e.currentTarget.style.boxShadow = `0 2px 6px rgba(2,48,73,0.05)`; e.currentTarget.style.borderColor = TAN; }}>
-                      <div style={S.cardSuper}><Ic.zap /> {agent.solution || "—"}</div>
-                      <div style={S.cardTitle}>{agent.name}</div>
-                      <div style={S.cardDesc}>{agent.useCase}</div>
-                      {/* Agent types + context mode as small tags */}
-                      {((Array.isArray(agent.agentTypes) ? agent.agentTypes : [agent.agentType]).filter(Boolean).length > 0 || agent.contextMode) && (
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 10 }}>
-                          {(Array.isArray(agent.agentTypes) ? agent.agentTypes : [agent.agentType]).filter(Boolean).map(t => (
-                            <span key={t} style={{ fontSize: 11, fontWeight: 500, color: STEEL, background: `${STEEL}12`, borderRadius: 4, padding: "2px 7px" }}>{t}</span>
-                          ))}
-                          {agent.contextMode && (
-                            <span style={{ fontSize: 11, fontWeight: 500, color: "#7AACBE", background: `${STEEL}0C`, borderRadius: 4, padding: "2px 7px" }}>{agent.contextMode}</span>
-                          )}
-                        </div>
-                      )}
-                      <div style={S.cardFooter}>
-                        <span style={S.dlCount}><Ic.dl /> {agent.downloads || 0}</span>
-                        <span style={{ ...S.ver, marginLeft: 10 }}>v{agent.version}</span>
-                      </div>
+              <div style={isAdmin ? S.libraryGrid : { ...S.libraryGrid, gridTemplateColumns: "1fr" }}>
+                <div>
+                  {filtered.length === 0 ? (
+                    <div style={S.empty}>
+                      <div style={{ fontSize: 44, marginBottom: 14 }}>🤖</div>
+                      <div style={{ fontSize: 19, fontWeight: 600, color: "#999", marginBottom: 8 }}>No agents found</div>
+                      <div style={{ fontSize: 16, color: "#ccc" }}>Try a different filter or search{isAdmin ? ", or create a new agent" : ""}.</div>
                     </div>
-                  ))}
+                  ) : (
+                    <div style={S.grid}>
+                      {filtered.map(agent => (
+                        <div key={agent.id} style={S.card}
+                          onClick={() => { setSelected(agent); setView("detail"); }}
+                          onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 8px 24px rgba(2,48,73,0.11)`; e.currentTarget.style.borderColor = STEEL; }}
+                          onMouseLeave={e => { e.currentTarget.style.boxShadow = `0 2px 6px rgba(2,48,73,0.05)`; e.currentTarget.style.borderColor = TAN; }}>
+                          <div style={S.cardSuper}><Ic.zap /> {agent.solution || "—"}</div>
+                          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
+                            <div style={S.cardTitle}>{agent.name}</div>
+                          </div>
+                          <div style={S.cardDesc}>{agent.useCase}</div>
+                          <div style={S.cardFooter}>
+                            <div style={S.cardFooterDivider} />
+                            <div style={S.cardFooterBottom}>
+                              <div style={S.cardStats}>
+                                <span style={S.metaItem}>v{agent.version}</span>
+                                <span style={S.metaDivider}>·</span>
+                                <span style={S.metaItem}>Updated {agent.updatedAt || "Unknown date"}</span>
+                                <span style={S.metaDivider}>·</span>
+                                <span style={S.metaItem}>{agent.prompts.length} prompt{agent.prompts.length !== 1 ? "s" : ""}</span>
+                                <span style={S.metaDivider}>·</span>
+                                <span style={S.metaItem}><Ic.dl /> {(agent.downloads || 0)} downloads</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
+                {isAdmin && (
+                  <div style={S.buildPanel}>
+                    <div style={S.buildTitle}>Create New Agent</div>
+                    <div style={S.buildSubtitle}>Build a custom agent to automate tasks and drive outcomes.</div>
+                    {draftError && <div style={S.err}>{draftError}</div>}
+                    {draftGenerating && <div style={{ marginBottom: 16, fontSize: 14, color: STEEL }}>Generating agent with Claude…</div>}
+                    <div style={S.buildField}>
+                      <label style={S.buildLabel}>Agent Name *</label>
+                      <input style={S.buildInput} value={draftAgent.name} onChange={e => handleDraftChange("name", e.target.value)} placeholder="Enter agent name..." />
+                    </div>
+                    <div style={S.buildField}>
+                      <label style={S.buildLabel}>Use Case *</label>
+                      <textarea style={S.buildTextarea} value={draftAgent.useCase} onChange={e => handleDraftChange("useCase", e.target.value)} placeholder="Describe the use case..." />
+                    </div>
+                    <div style={S.buildField}>
+                      <label style={S.buildLabel}>Prompt / Instructions *</label>
+                      <textarea style={S.buildTextarea} value={draftAgent.prompt} onChange={e => handleDraftChange("prompt", e.target.value)} placeholder="Describe what the agent should do, how it should behave, and any specific guidelines..." />
+                      <div style={S.buildHint}>{draftAgent.prompt.length}/2000</div>
+                    </div>
+                    <div style={S.buildField}>
+                      <label style={S.buildLabel}>Model Selection *</label>
+                      <select style={S.buildSelect} value={draftAgent.modelSelection} onChange={e => handleDraftChange("modelSelection", e.target.value)}>
+                        <option value="">Select a model...</option>
+                        {Object.keys(LLM_MODELS).map(model => <option key={model} value={model}>{model}</option>)}
+                      </select>
+                    </div>
+                    <div style={S.buildField}>
+                      <label style={S.buildLabel}>Knowledge Source</label>
+                      <input style={S.buildInput} value={draftAgent.knowledgeSource} onChange={e => handleDraftChange("knowledgeSource", e.target.value)} placeholder="Select knowledge source(s)..." />
+                    </div>
+                    <div style={S.buildButtons}>
+                      <button style={{ ...S.btnP, width: "100%" }} type="button" onClick={createAgentFromDraft} disabled={draftGenerating}>
+                        {draftGenerating ? "Generating..." : "Generate Agent"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </>
           )}
         </div>
@@ -1855,6 +2016,7 @@ export default function AgentLibrary() {
  
       {showModal && (
         <AgentModal
+          user={user}
           agent={editAgent}
           solutions={solutions}
           clientNames={clientNames}
