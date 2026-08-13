@@ -782,7 +782,7 @@ const Ic = {
  
 // ── Styles ───────────────────────────────────────────────────────────────────
 const S = {
-  app:        { fontFamily: "'Inter','Segoe UI',sans-serif", minHeight: "100vh", background: LIGHT, color: NAVY },
+  app:        { fontFamily: "'ProximaNova', sans-serif", minHeight: "100vh", background: LIGHT, color: NAVY },
   hdr:        { background: NAVY, padding: "0 32px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 60, borderBottom: `3px solid ${CORAL}` },
   logoText:   { color: WHITE, fontWeight: 700, fontSize: 19 },
   logoSub:    { color: TAN, fontSize: 14 },
@@ -1027,7 +1027,7 @@ function LoginScreen({ onLogin }) {
             <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
               <rect x="14" y="14" width="24" height="24" rx="5" fill="none" stroke={CORAL} strokeWidth="2"/>
               <rect x="20" y="20" width="12" height="12" rx="2" fill="none" stroke={CORAL} strokeWidth="1.5"/>
-              <text x="26" y="30" textAnchor="middle" fontSize="8" fontWeight="800" fill={CORAL} fontFamily="sans-serif">AI</text>
+              <text x="26" y="30" textAnchor="middle" fontSize="8" fontWeight="800" fill={CORAL} fontFamily="'ProximaNova', sans-serif">AI</text>
               {[17,22,27,32].map((y, i) => (
                 <g key={i}>
                   <line x1="8" y1={y} x2="14" y2={y} stroke={CORAL} strokeWidth="1.5" strokeLinecap="round"/>
