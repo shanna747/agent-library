@@ -1055,7 +1055,7 @@ function LoginScreen({ onLogin }) {
       {/* Admin link */}
       <div style={{ ...S.adminLink, position: "relative", zIndex: 1 }}>
         <button style={S.adminLinkBtn} onClick={() => setShowPin(true)}>
-          <Ic.lock /> Admin Access Only
+          <Ic.lock /> Admin Access
         </button>
       </div>
  
@@ -1070,7 +1070,7 @@ function LoginScreen({ onLogin }) {
 }
  
 // ── Agent Modal ──────────────────────────────────────────────────────────────
-function AgentModal({ agent, user, solutions, clientNames, onSave, onClose, onAddSolution, onAddClientName }) {
+function AgentModal({ agent, user, solutions, clientNames, onSave, onClose, onAddSolution, onAddClientName, fullPage }) {
   const isEdit = !!agent?.id;
   const isClient = user?.role === "client";
   if (user?.role !== "admin") return null;
@@ -1165,13 +1165,23 @@ function AgentModal({ agent, user, solutions, clientNames, onSave, onClose, onAd
     });
   }
  
+  const outerStyle = fullPage ? {} : S.overlay;
+  const innerStyle = fullPage
+    ? { ...S.modal, maxWidth: 900, maxHeight: "none", boxShadow: "none", padding: 0 }
+    : S.modal;
+
   return (
-    <div style={S.overlay} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={S.modal} className="app-modal">
+    <div style={outerStyle} onClick={fullPage ? undefined : e => e.target === e.currentTarget && onClose()}>
+      <div style={innerStyle} className="app-modal">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
-          <div style={S.modalTitle}>{title}</div>
-          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "#aaa" }}><Ic.x /></button>
+          {fullPage ? (
+            <button onClick={onClose} style={{ ...S.btnS, display: "inline-flex", alignItems: "center", gap: 6 }}><Ic.back /> Back to Library</button>
+          ) : (
+            <div style={S.modalTitle}>{title}</div>
+          )}
+          {!fullPage && <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "#aaa" }}><Ic.x /></button>}
         </div>
+        {fullPage && <div style={{ ...S.modalTitle, marginTop: 0 }}>{title}</div>}
         {err && <div style={S.err}>{err}</div>}
  
         <div style={S.fRow}>
@@ -1952,13 +1962,25 @@ export default function AgentLibrary() {
             <div style={S.sideSec}>
               <div style={S.sideLbl}>Admin</div>
               <div style={{ padding: "7px 20px", cursor: "pointer", fontSize: 16, fontWeight: 600, color: CORAL, display: "flex", alignItems: "center" }}
-                onClick={() => { setEditAgent(null); setShowModal(true); }}>+ New Agent</div>
+                onClick={() => { setEditAgent(null); setView("form"); }}>+ New Agent</div>
             </div>
           )}
         </div>
  
         <div style={S.main} className="app-main">
-          {view === "detail" && selected ? (
+          {view === "form" ? (
+            <AgentModal
+              fullPage
+              user={user}
+              agent={editAgent}
+              solutions={solutions}
+              clientNames={clientNames}
+              onSave={a => { saveAgent(a); setView("library"); }}
+              onClose={() => { setView("library"); setEditAgent(null); }}
+              onAddSolution={addSolution}
+              onAddClientName={addClientName}
+            />
+          ) : view === "detail" && selected ? (
             <AgentDetail
               agent={agents.find(a => a.id === selected.id) || selected}
               user={user}
@@ -1978,7 +2000,7 @@ export default function AgentLibrary() {
                   <input style={S.searchInp} placeholder="Search agents or use cases…" value={search} onChange={e => setSearch(e.target.value)} />
                 </div>
                 {isAdmin && (
-                  <button style={S.btnP} className="app-toolbar-button" onClick={() => { setEditAgent(null); setShowModal(true); }}>
+                  <button style={S.btnP} className="app-toolbar-button" onClick={() => { setEditAgent(null); setView("form"); }}>
                     <Ic.plus /> New Agent
                   </button>
                 )}

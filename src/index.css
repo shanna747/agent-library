@@ -41,11 +41,13 @@ html, body {
 }
 
 .login-card {
-  width: min(100%, 92vw) !important;
-  aspect-ratio: 1 / 1;
-  max-width: 440px;
-  max-height: min(440px, 92vw);
+  width: min(92vw, 440px) !important;
+  height: min(92vw, 440px) !important;
   box-sizing: border-box;
+  overflow: hidden;
+  display: flex !important;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .app-modal {
