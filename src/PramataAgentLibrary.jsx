@@ -783,12 +783,12 @@ const Ic = {
   message: () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>,
   book:   () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>,
   sliders: () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>,
-  tagSolid: () => <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20.83 11.59 12.41 3.17A2 2 0 0 0 11 2.59H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.41l8.42 8.42a2 2 0 0 0 2.82 0l7-7a2 2 0 0 0 0-2.83zM7 8a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>,
-  calendar: () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="16" rx="2.5"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2.5" x2="8" y2="6"/><line x1="16" y1="2.5" x2="16" y2="6"/><rect x="6.5" y="13" width="3" height="3" rx="0.6" fill="currentColor" stroke="none"/><rect x="10.5" y="13" width="3" height="3" rx="0.6" fill="currentColor" stroke="none"/><rect x="14.5" y="13" width="3" height="3" rx="0.6" fill="currentColor" stroke="none"/></svg>,
-  messageDots: () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8A2.5 2.5 0 0 1 17.5 16H10l-4.5 4v-4H6.5A2.5 2.5 0 0 1 4 13.5z"/><circle cx="8.5" cy="9.5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="9.5" r="1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="9.5" r="1" fill="currentColor" stroke="none"/></svg>,
-  downloadTray: () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 3v11.5"/><path d="M7 10.5 12 15.5 17 10.5"/><path d="M4 16v2.5A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5V16"/></svg>,
-  stack:  () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"><path d="M12 3 2.5 8 12 13l9.5-5z"/><path d="M2.5 12 12 17l9.5-5"/><path d="M2.5 16 12 21l9.5-5"/></svg>,
-  brain:  () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M9 3.5a3 3 0 0 0-3 3v.3A3 3 0 0 0 4.5 12a3 3 0 0 0 1 5.5 3 3 0 0 0 3 3.2A2.5 2.5 0 0 0 11 18.5v-12A2.8 2.8 0 0 0 9 3.5z"/><path d="M15 3.5a3 3 0 0 1 3 3v.3A3 3 0 0 1 19.5 12a3 3 0 0 1-1 5.5 3 3 0 0 1-3 3.2 2.5 2.5 0 0 1-2.5-2.7v-12A2.8 2.8 0 0 1 15 3.5z"/><path d="M11 8.2H8.7M11 12H8M11 15.8H8.5M13 8.2h2.3M13 12h3M13 15.8h2.5"/></svg>,
+  tagSolid: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.83 11.59 12.41 3.17A2 2 0 0 0 11 2.59H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.41l8.42 8.42a2 2 0 0 0 2.82 0l7-7a2 2 0 0 0 0-2.83zM7 8a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>,
+  calendar: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="16" rx="2.5"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2.5" x2="8" y2="6"/><line x1="16" y1="2.5" x2="16" y2="6"/><rect x="6.5" y="13" width="3" height="3" rx="0.6" fill="currentColor" stroke="none"/><rect x="10.5" y="13" width="3" height="3" rx="0.6" fill="currentColor" stroke="none"/><rect x="14.5" y="13" width="3" height="3" rx="0.6" fill="currentColor" stroke="none"/></svg>,
+  messageDots: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8A2.5 2.5 0 0 1 17.5 16H10l-4.5 4v-4H6.5A2.5 2.5 0 0 1 4 13.5z"/><circle cx="8.5" cy="9.5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="9.5" r="1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="9.5" r="1" fill="currentColor" stroke="none"/></svg>,
+  downloadTray: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 3v11.5"/><path d="M7 10.5 12 15.5 17 10.5"/><path d="M4 16v2.5A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5V16"/></svg>,
+  stack:  () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"><path d="M12 3 2.5 8 12 13l9.5-5z"/><path d="M2.5 12 12 17l9.5-5"/><path d="M2.5 16 12 21l9.5-5"/></svg>,
+  brain:  () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M9 3.5a3 3 0 0 0-3 3v.3A3 3 0 0 0 4.5 12a3 3 0 0 0 1 5.5 3 3 0 0 0 3 3.2A2.5 2.5 0 0 0 11 18.5v-12A2.8 2.8 0 0 0 9 3.5z"/><path d="M15 3.5a3 3 0 0 1 3 3v.3A3 3 0 0 1 19.5 12a3 3 0 0 1-1 5.5 3 3 0 0 1-3 3.2 2.5 2.5 0 0 1-2.5-2.7v-12A2.8 2.8 0 0 1 15 3.5z"/><path d="M11 8.2H8.7M11 12H8M11 15.8H8.5M13 8.2h2.3M13 12h3M13 15.8h2.5"/></svg>,
 };
  
 // ── Styles ───────────────────────────────────────────────────────────────────
@@ -857,8 +857,8 @@ const S = {
   detailMeta: { display: "flex", gap: 14, fontSize: 15, color: "#aaa", marginBottom: 14, flexWrap: "wrap", alignItems: "center" },
   metaItemSmall: { display: "flex", alignItems: "center", gap: 6, color: "#053049" },
   metaIcon: { display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#053049", flexShrink: 0 },
-  metaLabel: { fontSize: 8, color: "#053049", fontWeight: 400 },
-  metaValue: { fontSize: 9, color: "#053049", fontWeight: 400 },
+  metaLabel: { fontSize: 12, color: "#053049", fontWeight: 400 },
+  metaValue: { fontSize: 13, color: "#053049", fontWeight: 400 },
   detailActs: { display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 },
   detailBody: { display: "grid", gap: 24 },
   detailGrid: { display: "grid", gap: 24 },
@@ -1177,7 +1177,7 @@ function AgentModal({ agent, user, solutions, clientNames, onSave, onClose, onAd
  
   const outerStyle = fullPage ? {} : S.overlay;
   const innerStyle = fullPage
-    ? { ...S.modal, maxWidth: 900, maxHeight: "none", boxShadow: "none", padding: 0 }
+    ? { ...S.modal, maxWidth: "none", maxHeight: "none", boxShadow: "none", padding: 0 }
     : S.modal;
 
   return (
@@ -1265,15 +1265,6 @@ function AgentModal({ agent, user, solutions, clientNames, onSave, onClose, onAd
           )}
         </div>
  
-        {!isEdit && (
-          <div style={{ marginBottom: 18, padding: "16px 18px", background: LIGHT, borderRadius: 14, border: `1px solid ${TAN}` }}>
-            <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 10 }}>Build your agent with Claude-style guidance</div>
-            <div style={{ fontSize: 13, lineHeight: 1.7, color: "#444" }}>
-              1. Describe your use case.<br />
-              2. How would you like your agent to analyze contract information? Use Pramata variables like <code>{"{{MASTER}}"}</code> and <code>{"{{DOCUMENT}}"}</code>.
-            </div>
-          </div>
-        )}
 
         <div style={S.fRow}>
           <label style={S.lbl}>Use Case *</label>
