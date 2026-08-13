@@ -1259,7 +1259,7 @@ function AgentModal({ agent, user, solutions, clientNames, onSave, onClose, onAd
           <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 10 }}>Build your agent with Claude-style guidance</div>
           <div style={{ fontSize: 13, lineHeight: 1.7, color: "#444" }}>
             1. Describe your use case.<br />
-            2. How would you like your agent to analyze contract information? Use Pramata variables like <code>{{MASTER}}</code> and <code>{{DOCUMENT}}</code>.
+            2. How would you like your agent to analyze contract information? Use Pramata variables like <code>{"{{MASTER}}"}</code> and <code>{"{{DOCUMENT}}"}</code>.
           </div>
         </div>
  
