@@ -307,46 +307,60 @@ const SK = {
 const FIREBASE_DB_URL = import.meta.env.VITE_FIREBASE_DB_URL || "https://pravesh-97f6a-default-rtdb.firebaseio.com";
 const FIREBASE_DB_PATH = import.meta.env.VITE_FIREBASE_DB_PATH || "";
 
-function rtdbUrl() {
+// Security rules only grant .read/.write on the named top-level collections
+// (agents, solutions, clientNames), not on the DB root — so reads must hit
+// each collection path individually, never `/.json`.
+const RTDB_COLLECTIONS = ["agents", "solutions", "clientNames"];
+
+function rtdbUrl(child) {
+  const path = FIREBASE_DB_PATH ? `${FIREBASE_DB_PATH}/${child}` : child;
+  return `${FIREBASE_DB_URL}/${path}.json`;
+}
+
+function rtdbRootUrl() {
   return FIREBASE_DB_PATH
     ? `${FIREBASE_DB_URL}/${FIREBASE_DB_PATH}.json`
     : `${FIREBASE_DB_URL}/.json`;
 }
- 
+
 // Lightweight reachability check — separate from fbLoad so we can tell
 // "connected but empty" apart from "actually unreachable"
 async function fbPing() {
   if (!FIREBASE_DB_URL) return false;
   try {
-    const r = await fetch(`${FIREBASE_DB_URL}/.json?shallow=true`);
+    const r = await fetch(`${rtdbUrl("agents")}?shallow=true`);
     return r.ok;
   } catch (e) {
     console.error("Firebase ping error:", e.message, e);
     return false;
   }
 }
- 
+
 async function fbLoad() {
   if (!FIREBASE_DB_URL) return null;
   try {
-    const r = await fetch(rtdbUrl());
-    if (!r.ok) {
-      console.error("Firebase load failed:", r.status, await r.text().catch(() => ""));
+    const responses = await Promise.all(RTDB_COLLECTIONS.map(c => fetch(rtdbUrl(c))));
+    if (responses.some(r => !r.ok)) {
+      console.error("Firebase load failed:", responses.map(r => r.status).join(","));
       return null;
     }
-    const data = await r.json();
-    return data; // null if path is empty, or the stored object
+    const [agents, solutions, clientNames] = await Promise.all(responses.map(r => r.json()));
+    if (agents == null && solutions == null && clientNames == null) return null;
+    return { agents, solutions, clientNames };
   } catch (e) {
     console.error("Firebase load error:", e.message, e);
     return null;
   }
 }
- 
+
+// Uses PATCH (multi-location update) instead of PUT: Realtime Database
+// evaluates security rules per affected child path for a PATCH, so this
+// works with rules scoped to agents/solutions/clientNames and no root grant.
 async function fbSave(data) {
   if (!FIREBASE_DB_URL) return { ok: false, error: "No database URL configured" };
   try {
-    const r = await fetch(rtdbUrl(), {
-      method: "PUT",
+    const r = await fetch(rtdbRootUrl(), {
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
