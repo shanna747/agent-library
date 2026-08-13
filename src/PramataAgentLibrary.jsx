@@ -1048,7 +1048,7 @@ function LoginScreen({ onLogin }) {
           </div>
         </div>
         <button style={S.loginBtn} onClick={() => onLogin({ role: "client", name: "Client" })}>
-          Enter Library →
+          Get Started →
         </button>
       </div>
  
