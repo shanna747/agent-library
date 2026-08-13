@@ -873,7 +873,7 @@ const S = {
   buildSelect: { width: "100%", padding: "12px 14px", border: "1.5px solid #ddd", borderRadius: 10, fontSize: 15, color: NAVY, background: WHITE, outline: "none", boxSizing: "border-box" },
   buildHint: { fontSize: 12, color: "#999", marginTop: 4, textAlign: "right" },
   buildButtons: { display: "flex", gap: 12, marginTop: 16 },
-  metaRow: { display: "flex", flexWrap: "wrap", gap: 36, marginTop: 20, marginBottom: 4 },
+  metaRow: { display: "flex", flexWrap: "wrap", gap: 36, marginTop: 20, paddingTop: 20, borderTop: `1px solid ${TAN}` },
   metaSep: { width: 1, height: 28, background: "#eef2f4" },
   section:    { background: WHITE, borderRadius: 12, border: `1.5px solid ${TAN}`, padding: 24, marginBottom: 14 },
   secTitle:   { fontSize: 15, fontWeight: 700, color: NAVY, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 14, paddingBottom: 10, borderBottom: `1px solid ${TAN}` },
@@ -1008,7 +1008,7 @@ function LoginScreen({ onLogin }) {
         width="900" height="500" viewBox="0 0 900 500">
         {[80,150,220,290,360,430].map((r, i) => (
           <ellipse key={i} cx="450" cy="0" rx={r * 2.2} ry={r} fill="none"
-            stroke="rgba(100,180,255,0.7)" strokeWidth="1" strokeDasharray="4 8" />
+            stroke="rgba(100,180,255,0.4)" strokeWidth="1" strokeDasharray="4 8" />
         ))}
         {/* Radial lines */}
         {Array.from({length: 16}, (_, i) => {
@@ -1447,28 +1447,29 @@ function AgentDetail({ agent, user, onBack, onEdit, onDelete, onDownload, onRemo
     <div>
       <button style={S.backBtn} onClick={onBack}><Ic.back /> All Agents</button>
  
-      <div style={S.detailHdr}>
-        <div style={S.detailLeft}>
-          {agent.solution && (
-            <div style={{ marginBottom: 10 }}>
-              <span style={S.tagNavy}><Ic.zap /> {agent.solution}</span>
+      <div style={{ ...S.detailHdr, flexDirection: "column", alignItems: "stretch" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 20 }}>
+          <div style={S.detailLeft}>
+            {agent.solution && (
+              <div style={{ marginBottom: 10 }}>
+                <span style={S.tagNavy}><Ic.zap /> {agent.solution}</span>
+              </div>
+            )}
+
+            <div style={S.detailTitle}>{agent.name}</div>
+            <div style={S.detailDesc}>{agent.useCase}</div>
+          </div>
+
+          <div style={S.detailRight}>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button style={S.btnP} onClick={() => onDownload(agent)}><Ic.dl /> Download</button>
             </div>
-          )}
-
-          <div style={S.detailTitle}>{agent.name}</div>
-          <div style={S.detailDesc}>{agent.useCase}</div>
-        </div>
-
-        <div style={S.detailRight}>
-          <div style={{ display: "flex", gap: 10 }}>
-            <button style={S.btnP} onClick={() => onDownload(agent)}><Ic.dl /> Download</button>
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            {isAdmin && <button style={S.btnS} onClick={() => onEdit(agent)}><Ic.edit /> Edit</button>}
-            {isAdmin && <button style={{ ...S.btnG, color: CORAL, borderColor: `${CORAL}40` }} onClick={() => onDelete(agent.id)}><Ic.trash /> Delete</button>}
+            <div style={{ display: "flex", gap: 8 }}>
+              {isAdmin && <button style={S.btnS} onClick={() => onEdit(agent)}><Ic.edit /> Edit</button>}
+              {isAdmin && <button style={{ ...S.btnG, color: CORAL, borderColor: `${CORAL}40` }} onClick={() => onDelete(agent.id)}><Ic.trash /> Delete</button>}
+            </div>
           </div>
         </div>
-      </div>
 
       <div style={S.metaRow}>
         <div style={S.metaItemSmall}>
@@ -1523,7 +1524,8 @@ function AgentDetail({ agent, user, onBack, onEdit, onDelete, onDownload, onRemo
           </div>
         )}
       </div>
- 
+      </div>
+
       <div style={S.detailBody}>
         <div style={S.detailGrid}>
           <div>
