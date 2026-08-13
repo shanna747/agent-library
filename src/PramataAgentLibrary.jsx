@@ -887,10 +887,10 @@ const S = {
   overlay:    { position: "fixed", inset: 0, background: "rgba(2,48,73,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 24 },
   modal:      { background: WHITE, borderRadius: 16, padding: 36, width: "100%", maxWidth: 700, maxHeight: "90vh", overflowY: "auto", boxShadow: "0 24px 64px rgba(0,0,0,0.22)" },
   modalTitle: { fontSize: 23, fontWeight: 700, color: NAVY, marginBottom: 22 },
-  fRow:       { marginBottom: 16 },
+  fRow:       { marginBottom: 8 },
   ta:         { width: "100%", padding: "10px 14px", border: "1.5px solid #ddd", borderRadius: 8, fontSize: 16, color: NAVY, outline: "none", boxSizing: "border-box", fontFamily: "inherit", resize: "vertical" },
   sel:        { width: "100%", padding: "10px 14px", border: "1.5px solid #ddd", borderRadius: 8, fontSize: 16, color: NAVY, outline: "none", background: WHITE, boxSizing: "border-box" },
-  modalFoot:  { display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 24, paddingTop: 18, borderTop: `1px solid ${TAN}` },
+  modalFoot:  { display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${TAN}` },
   err:        { background: `${CORAL}14`, color: CORAL, padding: "10px 14px", borderRadius: 8, fontSize: 16, marginBottom: 14 },
   empty:      { textAlign: "center", padding: "80px 40px" },
   table:      { width: "100%", borderCollapse: "collapse", fontSize: 16 },
@@ -1177,13 +1177,13 @@ function AgentModal({ agent, user, solutions, clientNames, onSave, onClose, onAd
  
   const outerStyle = fullPage ? {} : S.overlay;
   const innerStyle = fullPage
-    ? { ...S.modal, maxWidth: "none", maxHeight: "none", boxShadow: "none", padding: 0 }
+    ? { ...S.modal, background: "transparent", maxWidth: "none", maxHeight: "none", boxShadow: "none", padding: 0 }
     : S.modal;
 
   return (
     <div style={outerStyle} onClick={fullPage ? undefined : e => e.target === e.currentTarget && onClose()}>
       <div style={innerStyle} className="app-modal">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
           {fullPage ? (
             <button onClick={onClose} style={{ ...S.btnS, display: "inline-flex", alignItems: "center", gap: 6 }}><Ic.back /> Back to Library</button>
           ) : (
@@ -1199,7 +1199,7 @@ function AgentModal({ agent, user, solutions, clientNames, onSave, onClose, onAd
           <input style={S.inp} value={form.name} onChange={e => set("name", e.target.value)} placeholder="e.g. TFC Classification Agent" />
         </div>
  
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
           <div>
             <label style={S.lbl}>Solution *</label>
             <select style={S.sel} value={form.solution}
@@ -1220,7 +1220,7 @@ function AgentModal({ agent, user, solutions, clientNames, onSave, onClose, onAd
           </div>
         </div>
  
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
           <div>
             <label style={S.lbl}>Context Mode</label>
             <ContextModeSelect value={form.contextMode || ""} onChange={v => set("contextMode", v)} />
@@ -1234,8 +1234,8 @@ function AgentModal({ agent, user, solutions, clientNames, onSave, onClose, onAd
         </div>
  
         {/* Client Tags */}
-        <div style={{ ...S.fRow, background: LIGHT, borderRadius: 10, padding: "14px 16px", border: `1px solid ${TAN}` }}>
-          <label style={{ ...S.lbl, marginBottom: 10 }}>Client Tags</label>
+        <div style={{ ...S.fRow, background: LIGHT, borderRadius: 10, padding: "10px 12px", border: `1px solid ${TAN}` }}>
+          <label style={{ ...S.lbl, marginBottom: 6 }}>Client Tags</label>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: clientNames.length > 0 ? 10 : 0 }}>
             {clientNames.map(name => {
               const active = (form.clientTags || []).includes(name);
@@ -1319,8 +1319,8 @@ function AgentModal({ agent, user, solutions, clientNames, onSave, onClose, onAd
         </div>
  
         {/* Prompts — tabs always Prompt 1, Prompt 2… */}
-        <div style={{ ...S.fRow, background: LIGHT, borderRadius: 10, padding: 16, border: `1px solid ${TAN}` }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+        <div style={{ ...S.fRow, background: LIGHT, borderRadius: 10, padding: 10, border: `1px solid ${TAN}` }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
             <label style={S.lbl}>Prompts</label>
             <button style={{ ...S.btnG, fontSize: 11 }} onClick={addP}><Ic.plus /> Add Prompt</button>
           </div>
@@ -1331,7 +1331,7 @@ function AgentModal({ agent, user, solutions, clientNames, onSave, onClose, onAd
           </div>
           {form.prompts.map((p, i) => i !== ap ? null : (
             <div key={i}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: 10, marginBottom: 10, alignItems: "flex-end" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: 8, marginBottom: 6, alignItems: "flex-end" }}>
                 <div>
                   <label style={S.lbl}>Label</label>
                   <input style={S.inp} value={p.label} onChange={e => setPF(i, "label", e.target.value)} />
