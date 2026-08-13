@@ -2,15 +2,15 @@
   "rules": {
     "agents": {
       ".read": true,
-      ".write": "auth != null && auth.token.admin === true"
+      ".write": "auth != null"
     },
     "solutions": {
       ".read": true,
-      ".write": "auth != null && auth.token.admin === true"
+      ".write": "auth != null"
     },
     "clientNames": {
       ".read": true,
-      ".write": "auth != null && auth.token.admin === true"
+      ".write": "auth != null"
     },
     "$other": {
       ".read": false,

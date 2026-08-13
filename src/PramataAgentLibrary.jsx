@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { initializeApp } from "firebase/app";
+import { getAuth, signInAnonymously } from "firebase/auth";
  
 const NAVY  = "#023049";
 const CORAL = "#E94728";
@@ -307,6 +309,38 @@ const SK = {
 const FIREBASE_DB_URL = import.meta.env.VITE_FIREBASE_DB_URL || "https://pravesh-97f6a-default-rtdb.firebaseio.com";
 const FIREBASE_DB_PATH = import.meta.env.VITE_FIREBASE_DB_PATH || "";
 
+// Firebase Web config is not a secret (it identifies the project, it doesn't
+// authorize anything by itself) — safe to ship in the client bundle.
+const firebaseApp = initializeApp({
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyB-X-ovL_mDqFxVCfJpPQuFeqcpn4GmQNc",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "pravesh-97f6a.firebaseapp.com",
+  databaseURL: FIREBASE_DB_URL,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "pravesh-97f6a",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:867497360490:web:10d39925af3d4a392fde13",
+});
+const firebaseAuth = getAuth(firebaseApp);
+// Every visitor (admin or not) signs in anonymously so RTDB requests carry an
+// ID token — security rules require `auth != null` to write.
+const authReady = signInAnonymously(firebaseAuth).catch(e => {
+  console.error("Firebase anonymous sign-in failed:", e.message, e);
+  return null;
+});
+
+async function getIdToken() {
+  try {
+    await authReady;
+    return (await firebaseAuth.currentUser?.getIdToken()) || null;
+  } catch (e) {
+    console.error("Firebase getIdToken failed:", e.message, e);
+    return null;
+  }
+}
+
+function withAuth(url, token) {
+  if (!token) return url;
+  return `${url}${url.includes("?") ? "&" : "?"}auth=${token}`;
+}
+
 // Security rules only grant .read/.write on the named top-level collections
 // (agents, solutions, clientNames), not on the DB root — so reads must hit
 // each collection path individually, never `/.json`.
@@ -328,7 +362,8 @@ function rtdbRootUrl() {
 async function fbPing() {
   if (!FIREBASE_DB_URL) return false;
   try {
-    const r = await fetch(`${rtdbUrl("agents")}?shallow=true`);
+    const token = await getIdToken();
+    const r = await fetch(withAuth(`${rtdbUrl("agents")}?shallow=true`, token));
     return r.ok;
   } catch (e) {
     console.error("Firebase ping error:", e.message, e);
@@ -339,7 +374,8 @@ async function fbPing() {
 async function fbLoad() {
   if (!FIREBASE_DB_URL) return null;
   try {
-    const responses = await Promise.all(RTDB_COLLECTIONS.map(c => fetch(rtdbUrl(c))));
+    const token = await getIdToken();
+    const responses = await Promise.all(RTDB_COLLECTIONS.map(c => fetch(withAuth(rtdbUrl(c), token))));
     if (responses.some(r => !r.ok)) {
       console.error("Firebase load failed:", responses.map(r => r.status).join(","));
       return null;
@@ -359,7 +395,8 @@ async function fbLoad() {
 async function fbSave(data) {
   if (!FIREBASE_DB_URL) return { ok: false, error: "No database URL configured" };
   try {
-    const r = await fetch(rtdbRootUrl(), {
+    const token = await getIdToken();
+    const r = await fetch(withAuth(rtdbRootUrl(), token), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
