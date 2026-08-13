@@ -778,6 +778,11 @@ const Ic = {
   zap:    () => <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
   building: () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
   info:   () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>,
+  tag:    () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41 11 3.83 3.83 11l9.58 9.59a2 2 0 0 0 2.83 0l4.35-4.35a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>,
+  clock:  () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+  message: () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>,
+  book:   () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>,
+  sliders: () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>,
 };
  
 // ── Styles ───────────────────────────────────────────────────────────────────
@@ -844,9 +849,9 @@ const S = {
   detailDesc: { fontSize: 15, color: "#556", marginTop: 6, marginBottom: 6, lineHeight: 1.4 },
   detailTitle: { fontSize: 27, fontWeight: 700, color: NAVY, marginBottom: 10 },
   detailMeta: { display: "flex", gap: 14, fontSize: 15, color: "#aaa", marginBottom: 14, flexWrap: "wrap", alignItems: "center" },
-  metaItemSmall: { display: "flex", alignItems: "center", gap: 10, color: "#5a6e78" },
-  metaIcon: { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, borderRadius: 6, background: "#f5f7f8", color: "#7b8f99", fontSize: 13, fontWeight: 700 },
-  metaLabel: { fontSize: 12, color: "#8b97a1", fontWeight: 700, textTransform: "none" },
+  metaItemSmall: { display: "flex", alignItems: "center", gap: 12, color: "#5a6e78", background: WHITE, border: `1px solid ${TAN}`, borderRadius: 10, padding: "10px 16px" },
+  metaIcon: { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", background: `${STEEL}15`, color: STEEL, flexShrink: 0 },
+  metaLabel: { fontSize: 11.5, color: "#8b97a1", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" },
   metaValue: { fontSize: 15, color: NAVY, fontWeight: 700 },
   detailActs: { display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 },
   detailBody: { display: "grid", gap: 24 },
@@ -862,8 +867,7 @@ const S = {
   buildSelect: { width: "100%", padding: "12px 14px", border: "1.5px solid #ddd", borderRadius: 10, fontSize: 15, color: NAVY, background: WHITE, outline: "none", boxSizing: "border-box" },
   buildHint: { fontSize: 12, color: "#999", marginTop: 4, textAlign: "right" },
   buildButtons: { display: "flex", gap: 12, marginTop: 16 },
-  launchBtn: { display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 16px", background: CORAL, color: WHITE, border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer" },
-  metaRow: { display: "flex", gap: 24, alignItems: "center", padding: "14px 28px", marginTop: 12, borderTop: "1px solid #eef2f4", background: "transparent" },
+  metaRow: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, marginTop: 20, marginBottom: 4 },
   metaSep: { width: 1, height: 28, background: "#eef2f4" },
   section:    { background: WHITE, borderRadius: 12, border: `1.5px solid ${TAN}`, padding: 24, marginBottom: 14 },
   secTitle:   { fontSize: 15, fontWeight: 700, color: NAVY, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 14, paddingBottom: 10, borderBottom: `1px solid ${TAN}` },
@@ -1451,7 +1455,6 @@ function AgentDetail({ agent, user, onBack, onEdit, onDelete, onDownload, onRemo
 
         <div style={S.detailRight}>
           <div style={{ display: "flex", gap: 10 }}>
-            <button style={S.launchBtn} onClick={() => { /* launch not implemented */ }}>Launch Agent</button>
             <button style={S.btnP} onClick={() => onDownload(agent)}><Ic.dl /> Download</button>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
@@ -1463,7 +1466,7 @@ function AgentDetail({ agent, user, onBack, onEdit, onDelete, onDownload, onRemo
 
       <div style={S.metaRow}>
         <div style={S.metaItemSmall}>
-          <span style={S.metaIcon}>v</span>
+          <span style={S.metaIcon}><Ic.tag /></span>
           <div>
             <div style={S.metaLabel}>Version</div>
             <div style={S.metaValue}>v{agent.version}</div>
@@ -1471,7 +1474,7 @@ function AgentDetail({ agent, user, onBack, onEdit, onDelete, onDownload, onRemo
         </div>
 
         <div style={S.metaItemSmall}>
-          <span style={S.metaIcon}>⟳</span>
+          <span style={S.metaIcon}><Ic.clock /></span>
           <div>
             <div style={S.metaLabel}>Updated</div>
             <div style={S.metaValue}>{agent.updatedAt || "Unknown date"}</div>
@@ -1479,7 +1482,7 @@ function AgentDetail({ agent, user, onBack, onEdit, onDelete, onDownload, onRemo
         </div>
 
         <div style={S.metaItemSmall}>
-          <span style={S.metaIcon}>💬</span>
+          <span style={S.metaIcon}><Ic.message /></span>
           <div>
             <div style={S.metaLabel}>Prompts</div>
             <div style={S.metaValue}>{agent.prompts.length}</div>
@@ -1496,7 +1499,7 @@ function AgentDetail({ agent, user, onBack, onEdit, onDelete, onDownload, onRemo
 
         {agent.contextMode && (
           <div style={S.metaItemSmall}>
-            <span style={S.metaIcon}>📚</span>
+            <span style={S.metaIcon}><Ic.book /></span>
             <div>
               <div style={S.metaLabel}>Context</div>
               <div style={S.metaValue}>{agent.contextMode}</div>
@@ -1506,7 +1509,7 @@ function AgentDetail({ agent, user, onBack, onEdit, onDelete, onDownload, onRemo
 
         {agent.config?.llmTier && (
           <div style={S.metaItemSmall}>
-            <span style={S.metaIcon}>⚙️</span>
+            <span style={S.metaIcon}><Ic.sliders /></span>
             <div>
               <div style={S.metaLabel}>LLM Tier</div>
               <div style={S.metaValue}>{agent.config.llmTier}</div>
