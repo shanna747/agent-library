@@ -21,7 +21,8 @@ const SEED_SOLUTIONS = [
   "Price Increase",
   "Clauses",
   "Governing Terms",
-  "Address Change Notice"
+  "Address Change Notice",
+  "NDA"
 ];
 
 const SEED_CLIENT_NAMES = [
@@ -293,6 +294,41 @@ const SEED_AGENTS = [
     "clientTags": [
       "Dechra"
     ],
+    "agentType": "Custom Agentic Solutions"
+  },
+  {
+    "id": "agent-1789012345678",
+    "name": "NDA Compliance Checker",
+    "solution": "NDA",
+    "agentTypes": [
+      "Custom Agentic Solutions"
+    ],
+    "contextMode": "DOC-AT-A-TIME",
+    "downloads": 0,
+    "useCase": "Runs a checklist on a redlined or third-party NDA to check for compliance against preferred positions, then generates an NDA Compliance Review Memo summarizing required modifications.",
+    "clientTags": [],
+    "prompts": [
+      {
+        "id": "p1",
+        "label": "NDA Compliance Checker",
+        "type": "english",
+        "content": "TASK: Analyze {{DRAFT_CONTRACT}} to determine if it meets signing criteria\n\nINSTRUCTIONS:\n\n1. Evaluate the document against these specific criteria:\n   - Purpose:  The reason for the exchange of confidential information must be clearly and specifically defined with a narrow business purpose (e.g., \"evaluation of a potential partnership,\" \"assessment of acquisition opportunities,\" \"collaboration on Project X development\"). Broad, vague purposes like \"general business discussions,\" \"any business activity,\" or \"exploring business opportunities\" are not acceptable as they provide unlimited scope for confidential information use.\n   - Governing Law: Must be California or Delaware only\n   - Term Duration: Must be between 3 to 5 years maximum\n   - Confidentiality Obligations: Must be mutual (not one-sided)\n   - Return of Confidential Information: Must be present\n   - Injunctive Relief: A provision allowing for injunctive or equitable relief must be present\n   - Exclusions to Confidential Information: exclusions to the definition of confidential information must be present\n\n2. IMPORTANT: If the document is silent on or does not explicitly address ANY of the above criteria, mark that criterion as \"❌ No\" and note \"Not specified\" in the explanation.\n\n3. Produce a response with EXACTLY three parts:\n\n**Decision**\n- Respond with ONLY \"✅ Yes, this document can be signed as-is.\" OR \"❌ No, this document requires Legal review.\"\n- The document can ONLY be signed as-is if ALL seven criteria are explicitly met.\n\n**Analysis Summary**\n- Present findings in this exact markdown table format:\n| TERM NAME | MEETS STANDARDS | EXPLANATION |\n|-----------|----------------|------------|\n| Purpose| ✅ Yes / ❌ No | Purpose must be narrowly defined for specific business objective, currently [Purpose found] (Section [X.X]) / Not specified |\n| Governing Law | ✅ Yes / ❌ No | [State specified in document] law required, current law is [State found] (Section [X.X]) / Not specified |\n| Term Duration | ✅ Yes / ❌ No | 3-5 year term required, current term is [duration found] (Section [X.X]) / Not specified |\n| Confidentiality Obligations | ✅ Yes / ❌ No | Must be mutual, currently [mutual/one-sided] (Section [X.X]) / Not specified |\n| Return of Confidential Information | ✅ Yes / ❌ No | Must be present, currently Not specified |\n| Injunctive Relief | ✅ Yes / ❌ No | Must be present, currently Not specified |\n| Exclusions to Confidential Information | ✅ Yes / ❌ No | Must be present, currently Not specified |\nFINAL NOTE:  Do not produce any artifacts and generate a plain markdown\n\n**Recommendation**\n- Only use this section of the prompt if there is at least one term where standard is not met.  In that case, inform the requester if the other party can agree to our preferred position, we will be able to sign the NDA immediately.  For example, if the Governing Law is Nevada, inform the requester \"If the other party can agree to change the governing law to California or Delaware (both business-friendly jurisdictions), we will be able to sign the NDA.\" Another example is if the Term Duration falls outside of the three to five year range, inform the requester \"If the other party can agree to limit the Term to no more than five years, we will be able to sign the NDA assuming that the Governing Law is in a business-friendly jurisdiction.\" If not, General Counsel approval will be required which could take 3 - 5 business days\".  Obviously, if there are no places where the Meet Standards = No, then do not show the Recommendation section."
+      },
+      {
+        "id": "p2",
+        "label": "NDA Review",
+        "type": "english",
+        "content": "1. Instructions\n=========================================================================\nReview the terms provided in the previous prompt and determine if they need modification to meet our preferred position.\n\n2. Terms to Identify\n=========================================================================\n\n1. Choice of Law\n\nPreferred Position: Must be one of the following acceptable jurisdictions: New York, California, Delaware, United Kingdom (UK), Australia\nModification Needed If: Any choice of law outside of the acceptable jurisdictions\n\n2. Personally Identifiable Information (PII)\n\nPreferred Position: Remove any references to personally identifiable information (PII)\nModification Needed If: Any Personally Identifiable Information clause is present\n\n3. Specific Laws Referenced\n\nPreferred Position: Remove any references to specific laws\nModification Needed If: If there are any reference to specific laws such as HIPAA, Securities Act, Bank Secrecy Act, USA PATRIOT Act, state disclosure laws, etc.\n\n4. Term of Agreement\n\nPreferred Position: Definite term no less than 2 years and no more than 5 years\nModification Needed If: Open-ended term or no specified term, term is shorter than 2 years, term is longer than 5 years, any part of the term that is indefinite. If defined term is 3 years or less but some other concepts are indefinite, recommend to remove indefinite language\n\n5.     Non-Solicitation\n\nPreferred Position: Remove any references to non-solicitations\nModification Needed If: If there are any reference to non-solicitations\n\n6.\tAI/ML Limitations\n\nPreferred Position: Remove any limitations to use of artificial intelligence (AI) or machine-learning (ML)\nModification Needed If: If there are any limitations to use of artificial intelligence (AI) or machine-learning (ML)\n\n\n3. Generate Output\n=========================================================================\nGenerate AIDoc called <NDA Compliance Review Memo> with a summary of the analysis in a table that contains the following columns.\n\nUnder the \"NDA Compliance Review Memo header, if there are no modifications required, have \"Ready to Sign\" in green, if there are modification required, have \"Modifications Required\" in red.\n\nTerm:  <Name of Term>\nTerm Present: <Indicate Yes or No if the Term is Present somewhere in document>\nLocation: <Specify the section / page reference where the term can be found.  If found in multiple places, indicate all locations>\nClause Text: <Exact text of term from document up to 125 characters>\nCompliance Check:  <Show a green check mark if no modifications are needed and term meets our preferred position or show with a Red mark if  modifications are needed>\nModification Rationale:  <If modification is needed, indicate what changes are needed to align with our preferred position>"
+      }
+    ],
+    "config": {
+      "llmTier": "Reasoning",
+      "model": "Sonnet (32K)",
+      "notes": ""
+    },
+    "version": "1.0",
+    "createdAt": "2026-09-10",
+    "updatedAt": "2026-09-10",
     "agentType": "Custom Agentic Solutions"
   }
 ];
@@ -805,7 +841,7 @@ const S = {
   loginAppSub:  { color: "rgba(255,255,255,0.55)", fontSize: 18, marginTop: 6, textAlign: "center" },
   loginCard:  { background: "rgba(255,255,255,0.06)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: "36px 40px 12px 40px", width: 440, boxShadow: "0 32px 80px rgba(0,0,0,0.5)" },
   lbl:        { fontSize: 14, fontWeight: 700, color: NAVY, marginBottom: 6, display: "block", textTransform: "uppercase", letterSpacing: "0.07em" },
-  inp:        { width: "100%", padding: "10px 14px", border: "1.5px solid #ddd", borderRadius: 8, fontSize: 17, color: NAVY, outline: "none", boxSizing: "border-box" },
+  inp:        { width: "100%", padding: "10px 14px", border: "1.5px solid #ddd", borderRadius: 8, fontSize: 17, color: NAVY, background: WHITE, outline: "none", boxSizing: "border-box", colorScheme: "light" },
   loginBtn:   { width: "100%", padding: "16px", background: CORAL, color: WHITE, border: "none", borderRadius: 12, fontWeight: 700, fontSize: 18, cursor: "pointer", marginTop: 24, letterSpacing: "0.01em", marginBottom: "1rem" },
   adminLink:  { marginTop: 0, textAlign: "center" },
   adminLinkBtn: { background: "none", border: "none", color: "rgba(255,255,255,0.35)", fontSize: 15, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 0" },
@@ -868,8 +904,8 @@ const S = {
   buildSubtitle: { fontSize: 14, lineHeight: 1.7, color: "#556", marginBottom: 18 },
   buildField: { marginBottom: 18 },
   buildLabel: { fontSize: 12, fontWeight: 700, color: "#63738e", letterSpacing: "0.08em", marginBottom: 8, display: "block", textTransform: "uppercase" },
-  buildInput: { width: "100%", padding: "12px 14px", border: "1.5px solid #ddd", borderRadius: 10, fontSize: 15, color: NAVY, outline: "none", boxSizing: "border-box" },
-  buildTextarea: { width: "100%", minHeight: 110, padding: "12px 14px", border: "1.5px solid #ddd", borderRadius: 10, fontSize: 15, color: NAVY, outline: "none", boxSizing: "border-box", resize: "vertical", fontFamily: "inherit" },
+  buildInput: { width: "100%", padding: "12px 14px", border: "1.5px solid #ddd", borderRadius: 10, fontSize: 15, color: NAVY, background: WHITE, outline: "none", boxSizing: "border-box", colorScheme: "light" },
+  buildTextarea: { width: "100%", minHeight: 110, padding: "12px 14px", border: "1.5px solid #ddd", borderRadius: 10, fontSize: 15, color: NAVY, background: WHITE, outline: "none", boxSizing: "border-box", resize: "vertical", fontFamily: "inherit", colorScheme: "light" },
   buildSelect: { width: "100%", padding: "12px 14px", border: "1.5px solid #ddd", borderRadius: 10, fontSize: 15, color: NAVY, background: WHITE, outline: "none", boxSizing: "border-box" },
   buildHint: { fontSize: 12, color: "#999", marginTop: 4, textAlign: "right" },
   buildButtons: { display: "flex", gap: 12, marginTop: 16 },
@@ -888,7 +924,7 @@ const S = {
   modal:      { background: WHITE, borderRadius: 16, padding: 36, width: "100%", maxWidth: 700, maxHeight: "90vh", overflowY: "auto", boxShadow: "0 24px 64px rgba(0,0,0,0.22)" },
   modalTitle: { fontSize: 23, fontWeight: 700, color: NAVY, marginBottom: 22 },
   fRow:       { marginBottom: 8 },
-  ta:         { width: "100%", padding: "10px 14px", border: "1.5px solid #ddd", borderRadius: 8, fontSize: 16, color: NAVY, outline: "none", boxSizing: "border-box", fontFamily: "inherit", resize: "vertical" },
+  ta:         { width: "100%", padding: "10px 14px", border: "1.5px solid #ddd", borderRadius: 8, fontSize: 16, color: NAVY, background: WHITE, outline: "none", boxSizing: "border-box", fontFamily: "inherit", resize: "vertical", colorScheme: "light" },
   sel:        { width: "100%", padding: "10px 14px", border: "1.5px solid #ddd", borderRadius: 8, fontSize: 16, color: NAVY, outline: "none", background: WHITE, boxSizing: "border-box" },
   modalFoot:  { display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${TAN}` },
   err:        { background: `${CORAL}14`, color: CORAL, padding: "10px 14px", borderRadius: 8, fontSize: 16, marginBottom: 14 },
@@ -1576,6 +1612,8 @@ export default function AgentLibrary() {
   const [search,         setSearch]        = useState("");
   const [filterSolution, setFilterSolution] = useState("All");
   const [filterClient,   setFilterClient]  = useState("All");
+  const [filterType,     setFilterType]    = useState("All");
+  const [sortBy,         setSortBy]        = useState("name");
   const [clientCollapsed,setClientCollapsed] = useState(false);
   const [draftAgent,     setDraftAgent]     = useState({
     name: "", useCase: "", prompt: "", modelSelection: "", knowledgeSource: ""
@@ -1860,26 +1898,39 @@ export default function AgentLibrary() {
  
   const solCounts  = solutions.reduce((acc, s) => { acc[s] = agents.filter(a => a.solution === s).length; return acc; }, {});
   const taggedClients = clientNames.filter(n => agents.some(a => (a.clientTags || []).includes(n)));
- 
+  const allTypes = [...new Set(agents.flatMap(a => a.agentTypes || (a.agentType ? [a.agentType] : [])))];
+
   const filtered = agents.filter(a => {
     const ms = !search || (a.name.toLowerCase().includes(search.toLowerCase()) || a.useCase.toLowerCase().includes(search.toLowerCase()) || (a.solution || "").toLowerCase().includes(search.toLowerCase()));
     const mSol    = filterSolution === "All" || a.solution === filterSolution;
     const mClient = filterClient === "All" || (a.clientTags || []).includes(filterClient);
-    return ms && mSol && mClient;
+    const mType   = filterType === "All" || (a.agentTypes || (a.agentType ? [a.agentType] : [])).includes(filterType);
+    return ms && mSol && mClient && mType;
+  }).sort((a, b) => {
+    if (sortBy === "downloads") return (b.downloads || 0) - (a.downloads || 0);
+    if (sortBy === "updated")   return new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0);
+    return a.name.localeCompare(b.name);
   });
- 
+
+  const activeFilters = [
+    filterSolution !== "All" && { key: "solution", label: `Solution: ${filterSolution}`, clear: () => setFilterSolution("All") },
+    filterClient   !== "All" && { key: "client",   label: `Client: ${filterClient}`,     clear: () => setFilterClient("All") },
+    filterType     !== "All" && { key: "type",     label: `Type: ${filterType}`,         clear: () => setFilterType("All") },
+  ].filter(Boolean);
+
+  const clearAllFilters = () => { setFilterSolution("All"); setFilterClient("All"); setFilterType("All"); setSearch(""); };
+
   if (!user)   return <LoginScreen onLogin={handleLogin} />;
   if (loading) return <div style={{ ...S.app, display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}><div style={{ color: "#aaa", fontSize: 14 }}>Loading…</div></div>;
- 
+
   const isAdmin = user.role === "admin";
-  let pageTitle = "All Agents";
-  if (filterClient !== "All") pageTitle = filterClient;
-  else if (filterSolution !== "All") pageTitle = filterSolution;
- 
+  const pageTitle = "All Agents";
+
   const chevron = (collapsed) => (
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
       {collapsed ? <polyline points="9 18 15 12 9 6" /> : <polyline points="18 15 12 9 6 15" />}
     </svg>
+
   );
  
   return (
@@ -1915,7 +1966,7 @@ export default function AgentLibrary() {
               </label>
             </div>
           )}
-          <div style={S.badge} onClick={() => { setUser(null); setView("library"); setSelected(null); setSearch(""); setFilterSolution("All"); setFilterClient("All"); }}>
+          <div style={S.badge} onClick={() => { setUser(null); setView("library"); setSelected(null); setSearch(""); setFilterSolution("All"); setFilterClient("All"); setFilterType("All"); }}>
             <div><div style={S.badgeName}>{user.name}</div></div>
             <div style={{ fontSize: 11, color: "#888", marginLeft: 6 }}>Sign out</div>
           </div>
@@ -1926,8 +1977,8 @@ export default function AgentLibrary() {
         <div style={S.sidebar} className="app-sidebar">
           <div style={S.sideSec}>
             <div style={S.sideLbl}>Library</div>
-            <div style={S.sideItem(view === "library" && filterSolution === "All" && filterClient === "All")}
-              onClick={() => { setFilterSolution("All"); setFilterClient("All"); setView("library"); setSelected(null); }}>
+            <div style={S.sideItem(view === "library" && filterSolution === "All" && filterClient === "All" && filterType === "All")}
+              onClick={() => { setFilterSolution("All"); setFilterClient("All"); setFilterType("All"); setView("library"); setSelected(null); }}>
               <span>All Agents</span><span style={S.sideCount}>{agents.length}</span>
             </div>
           </div>
@@ -1936,9 +1987,21 @@ export default function AgentLibrary() {
             <div style={S.sideSec}>
               <div style={S.sideLbl}>By Solution</div>
               {solutions.filter(s => solCounts[s] > 0).map(s => (
-                <div key={s} style={S.sideItem(view === "library" && filterSolution === s && filterClient === "All")}
-                  onClick={() => { setFilterSolution(s); setFilterClient("All"); setView("library"); setSelected(null); }}>
+                <div key={s} style={S.sideItem(view === "library" && filterSolution === s)}
+                  onClick={() => { setFilterSolution(filterSolution === s ? "All" : s); setView("library"); setSelected(null); }}>
                   <span>{s}</span>
+                </div>
+              ))}
+            </div>
+          )}
+ 
+          {allTypes.length > 1 && (
+            <div style={S.sideSec}>
+              <div style={S.sideLbl}>By Agent Type</div>
+              {allTypes.map(t => (
+                <div key={t} style={S.sideItem(view === "library" && filterType === t)}
+                  onClick={() => { setFilterType(filterType === t ? "All" : t); setView("library"); setSelected(null); }}>
+                  <span>{t}</span>
                 </div>
               ))}
             </div>
@@ -1953,7 +2016,7 @@ export default function AgentLibrary() {
               </div>
               {!clientCollapsed && taggedClients.map(n => (
                 <div key={n} style={S.sideItem(view === "library" && filterClient === n)}
-                  onClick={() => { setFilterClient(n); setFilterSolution("All"); setView("library"); setSelected(null); }}>
+                  onClick={() => { setFilterClient(filterClient === n ? "All" : n); setView("library"); setSelected(null); }}>
                   <span>{n}</span>
                 </div>
               ))}
@@ -2000,21 +2063,63 @@ export default function AgentLibrary() {
               <div style={S.toolbar} className="app-toolbar">
                 <div style={S.searchWrap} className="app-search-wrap">
                   <span style={S.searchIco}><Ic.search /></span>
-                  <input style={S.searchInp} placeholder="Search agents or use cases…" value={search} onChange={e => setSearch(e.target.value)} />
+                  <input style={{ ...S.searchInp, paddingRight: search ? 34 : 12 }} placeholder="Search agents or use cases…" value={search} onChange={e => setSearch(e.target.value)} />
+                  {search && (
+                    <button
+                      onClick={() => setSearch("")}
+                      aria-label="Clear search"
+                      style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#aaa", padding: 4, display: "flex" }}>
+                      <Ic.x />
+                    </button>
+                  )}
                 </div>
+                <select
+                  value={sortBy}
+                  onChange={e => setSortBy(e.target.value)}
+                  style={{ padding: "9px 12px", border: `1.5px solid #e0e0e0`, borderRadius: 8, fontSize: 15, color: NAVY, background: WHITE, outline: "none", cursor: "pointer" }}>
+                  <option value="name">Sort: Name (A–Z)</option>
+                  <option value="downloads">Sort: Most Downloaded</option>
+                  <option value="updated">Sort: Recently Updated</option>
+                </select>
                 {isAdmin && (
                   <button style={S.btnP} className="app-toolbar-button" onClick={() => { setEditAgent(null); setView("form"); }}>
                     <Ic.plus /> New Agent
                   </button>
                 )}
               </div>
+              {(activeFilters.length > 0 || search) && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginBottom: 18, marginTop: -10 }}>
+                  {search && (
+                    <span style={{ ...S.tagNavy, cursor: "pointer" }} onClick={() => setSearch("")}>
+                      Search: "{search}" <Ic.x />
+                    </span>
+                  )}
+                  {activeFilters.map(f => (
+                    <span key={f.key} style={{ ...S.tagCoral, cursor: "pointer" }} onClick={f.clear}>
+                      {f.label} <Ic.x />
+                    </span>
+                  ))}
+                  {(activeFilters.length > 0 || search) && (
+                    <button onClick={clearAllFilters} style={{ background: "none", border: "none", color: "#999", fontSize: 14, cursor: "pointer", textDecoration: "underline", padding: 0 }}>
+                      Clear all
+                    </button>
+                  )}
+                </div>
+              )}
               <div style={isAdmin ? S.libraryGrid : { ...S.libraryGrid, gridTemplateColumns: "1fr" }}>
                 <div>
                   {filtered.length === 0 ? (
                     <div style={S.empty}>
                       <div style={{ fontSize: 44, marginBottom: 14 }}>🤖</div>
-                      <div style={{ fontSize: 19, fontWeight: 600, color: "#999", marginBottom: 8 }}>No agents found</div>
-                      <div style={{ fontSize: 16, color: "#ccc" }}>Try a different filter or search{isAdmin ? ", or create a new agent" : ""}.</div>
+                      <div style={{ fontSize: 19, fontWeight: 600, color: "#999", marginBottom: 8 }}>
+                        {search ? `No agents match "${search}"` : "No agents found"}
+                      </div>
+                      <div style={{ fontSize: 16, color: "#ccc", marginBottom: 14 }}>
+                        Try a different search or filter{isAdmin ? ", or create a new agent" : ""}.
+                      </div>
+                      {(activeFilters.length > 0 || search) && (
+                        <button onClick={clearAllFilters} style={{ ...S.btnS, margin: "0 auto" }}>Clear all filters</button>
+                      )}
                     </div>
                   ) : (
                     <div style={S.grid}>
