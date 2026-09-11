@@ -1006,6 +1006,63 @@ function AddCategoryModal({ onAdd, onClose }) {
     </div>
   );
 }
+
+// ── Request an Agent Modal ───────────────────────────────────────────────────
+function RequestAgentModal({ userName, onClose }) {
+  const [name, setName]   = useState("");
+  const [desc, setDesc]   = useState("");
+  const [err, setErr]     = useState("");
+  const [sent, setSent]   = useState(false);
+
+  function send() {
+    if (!name.trim())  { setErr("Please give the agent a short name or topic."); return; }
+    if (!desc.trim())  { setErr("Please describe what you'd like the agent to do."); return; }
+    const subject = encodeURIComponent(`Agent Request: ${name.trim()}`);
+    const body = encodeURIComponent(
+      `Requested by: ${userName || "Client"}\n\nAgent name / topic:\n${name.trim()}\n\nWhat it should do:\n${desc.trim()}`
+    );
+    window.location.href = `mailto:agentlibrary@pramata.com?subject=${subject}&body=${body}`;
+    setSent(true);
+  }
+
+  return (
+    <div style={S.overlay} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div style={{ ...S.modal, maxWidth: 480 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+          <div style={S.modalTitle}>Request an Agent</div>
+          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "#aaa" }}><Ic.x /></button>
+        </div>
+        {err && <div style={S.err}>{err}</div>}
+        {sent ? (
+          <div style={{ textAlign: "center", padding: "24px 0" }}>
+            <div style={{ fontSize: 40, marginBottom: 10 }}>✉️</div>
+            <div style={{ fontSize: 17, fontWeight: 600, color: NAVY, marginBottom: 8 }}>Your email app should be opening now</div>
+            <div style={{ fontSize: 15, color: "#888" }}>If it didn't open, email us directly at agentlibrary@pramata.com with your request.</div>
+          </div>
+        ) : (
+          <>
+            <div style={{ fontSize: 15, color: "#777", marginBottom: 18, lineHeight: 1.6 }}>
+              Can't find an agent for what you need? Tell us what you're trying to do and we'll follow up.
+            </div>
+            <div style={S.fRow}>
+              <label style={S.lbl}>Agent Name / Topic *</label>
+              <input style={S.inp} value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Data Privacy Addendum Checker" autoFocus />
+            </div>
+            <div style={S.fRow}>
+              <label style={S.lbl}>What should it do? *</label>
+              <textarea style={{ ...S.ta, minHeight: 110 }} value={desc} onChange={e => setDesc(e.target.value)}
+                placeholder="Describe the contract problem or task you'd like an agent to handle..." />
+            </div>
+          </>
+        )}
+        <div style={S.modalFoot}>
+          <button style={S.btnS} onClick={onClose}>{sent ? "Close" : "Cancel"}</button>
+          {!sent && <button style={S.btnP} onClick={send}>Send Request</button>}
+        </div>
+      </div>
+    </div>
+  );
+}
  
 // ── Admin PIN ────────────────────────────────────────────────────────────────
 function AdminPinOverlay({ onSuccess, onClose }) {
@@ -1413,6 +1470,15 @@ function AgentModal({ agent, user, solutions, clientNames, onSave, onClose, onAd
 }
  
 // ── Prompt Viewer ────────────────────────────────────────────────────────────
+function highlightVariables(text) {
+  const parts = String(text || "").split(/(\{\{[^}]+\}\})/g);
+  return parts.map((part, i) =>
+    /^\{\{[^}]+\}\}$/.test(part)
+      ? <span key={i} style={{ background: `${STEEL}22`, color: STEEL, borderRadius: 4, padding: "1px 4px", fontWeight: 700 }}>{part}</span>
+      : part
+  );
+}
+
 function PromptViewer({ content }) {
   const [expanded, setExpanded] = useState(false);
   const [hovered, setHovered]   = useState(false);
@@ -1433,9 +1499,8 @@ function PromptViewer({ content }) {
       <div style={{ position: "relative" }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}>
-        <div style={S.promptBox}>{displayed}</div>
-        {hovered && (
-          <button onClick={doCopy}
+        <div style={S.promptBox}>{highlightVariables(displayed)}</div>
+        <button onClick={doCopy}
             title="Copy full prompt"
             style={{
               position: "absolute", top: 10, right: 10,
@@ -1446,6 +1511,7 @@ function PromptViewer({ content }) {
               fontSize: 12, fontWeight: 600,
               color: copied ? WHITE : STEEL,
               boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+              opacity: (hovered || copied) ? 1 : 0.55,
               transition: "all 0.15s",
             }}>
             {copied ? (
@@ -1454,7 +1520,6 @@ function PromptViewer({ content }) {
               <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</>
             )}
           </button>
-        )}
       </div>
       {isLong && (
         <button onClick={() => setExpanded(e => !e)}
@@ -1466,7 +1531,7 @@ function PromptViewer({ content }) {
   );
 }
  
-function AgentDetail({ agent, user, onBack, onEdit, onDelete, onDownload, onRemoveClientTag }) {
+function AgentDetail({ agent, user, onBack, onEdit, onDelete, onDownload, onRemoveClientTag, backLabel, onCopyLink }) {
   const [ap, setAp]         = useState(0);
   const [showCtip, setCtip] = useState(false);
   const isAdmin = user.role === "admin";
@@ -1474,7 +1539,7 @@ function AgentDetail({ agent, user, onBack, onEdit, onDelete, onDownload, onRemo
  
   return (
     <div>
-      <button style={S.backBtn} onClick={onBack}><Ic.back /> All Agents</button>
+      <button style={S.backBtn} onClick={onBack}><Ic.back /> {backLabel || "All Agents"}</button>
  
       <div style={{ ...S.detailHdr, flexDirection: "column", alignItems: "stretch" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 20 }}>
@@ -1491,6 +1556,11 @@ function AgentDetail({ agent, user, onBack, onEdit, onDelete, onDownload, onRemo
           <div style={S.detailRight}>
             <div style={{ display: "flex", gap: 10 }}>
               <button style={S.btnP} onClick={() => onDownload(agent)}><Ic.dl /> Download</button>
+              {onCopyLink && (
+                <button style={S.btnS} title="Copy a shareable link to this agent" onClick={() => onCopyLink(agent)}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Copy Link
+                </button>
+              )}
             </div>
             <div style={{ display: "flex", gap: 8 }}>
               {isAdmin && <button style={S.btnS} onClick={() => onEdit(agent)}><Ic.edit /> Edit</button>}
@@ -1620,6 +1690,13 @@ export default function AgentLibrary() {
   });
   const [draftError,     setDraftError]     = useState("");
   const [draftGenerating, setDraftGenerating] = useState(false);
+  const [toast,          setToast]          = useState(null);
+  const [showRequest,    setShowRequest]    = useState(false);
+
+  function showToast(message) {
+    setToast(message);
+    setTimeout(() => setToast(t => t === message ? null : t), 2500);
+  }
  
   useEffect(() => {
     (async () => {
@@ -1664,6 +1741,32 @@ export default function AgentLibrary() {
       setLoading(false);
     })();
   }, []);
+
+  // Deep-link support: once logged in and agents are loaded, honor a
+  // #/agent/<id> hash in the URL by opening that agent's detail view directly.
+  useEffect(() => {
+    if (!user || loading || agents.length === 0) return;
+    const m = window.location.hash.match(/^#\/agent\/(.+)$/);
+    if (m) {
+      const found = agents.find(a => a.id === m[1]);
+      if (found) { setSelected(found); setView("detail"); }
+    }
+  }, [user, loading, agents]);
+
+  function openAgent(agent) {
+    setSelected(agent);
+    setView("detail");
+    window.location.hash = `#/agent/${agent.id}`;
+  }
+  function backToLibrary() {
+    setView("library");
+    setSelected(null);
+    if (window.location.hash) history.replaceState(null, "", window.location.pathname + window.location.search);
+  }
+  function copyAgentLink(agent) {
+    const url = `${window.location.origin}${window.location.pathname}#/agent/${agent.id}`;
+    navigator.clipboard.writeText(url).then(() => showToast("Link copied — share it with your team"));
+  }
  
   // Agents write to local storage always. Only admins push shared updates to Firebase.
   async function persistAgents(nextAgents) {
@@ -1921,10 +2024,29 @@ export default function AgentLibrary() {
   const clearAllFilters = () => { setFilterSolution("All"); setFilterClient("All"); setFilterType("All"); setSearch(""); };
 
   if (!user)   return <LoginScreen onLogin={handleLogin} />;
-  if (loading) return <div style={{ ...S.app, display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}><div style={{ color: "#aaa", fontSize: 14 }}>Loading…</div></div>;
+  if (loading) return (
+    <div style={S.app}>
+      <div style={S.hdr}><div><div style={S.logoText}>Agent Library</div><div style={S.logoSub}>Pramata Contract Intelligence</div></div></div>
+      <div style={{ padding: 32 }}>
+        <div style={{ width: 160, height: 26, background: TAN, borderRadius: 6, marginBottom: 10, opacity: 0.6 }} />
+        <div style={{ width: 90, height: 16, background: TAN, borderRadius: 6, marginBottom: 24, opacity: 0.4 }} />
+        <div style={S.grid}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} style={{ ...S.card, cursor: "default" }}>
+              <div style={{ width: 80, height: 12, background: TAN, borderRadius: 4, marginBottom: 10, opacity: 0.5 }} />
+              <div style={{ width: "85%", height: 18, background: TAN, borderRadius: 4, marginBottom: 10, opacity: 0.6 }} />
+              <div style={{ width: "100%", height: 12, background: TAN, borderRadius: 4, marginBottom: 6, opacity: 0.35 }} />
+              <div style={{ width: "70%", height: 12, background: TAN, borderRadius: 4, opacity: 0.35 }} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 
   const isAdmin = user.role === "admin";
-  const pageTitle = "All Agents";
+  const activeFilterLabels = [filterSolution !== "All" && filterSolution, filterType !== "All" && filterType, filterClient !== "All" && filterClient].filter(Boolean);
+  const pageTitle = activeFilterLabels.length > 0 ? activeFilterLabels.join(" · ") : "All Agents";
 
   const chevron = (collapsed) => (
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -2050,10 +2172,12 @@ export default function AgentLibrary() {
             <AgentDetail
               agent={agents.find(a => a.id === selected.id) || selected}
               user={user}
-              onBack={() => { setView("library"); setSelected(null); }}
+              backLabel={pageTitle === "All Agents" ? "All Agents" : `Back to ${pageTitle}`}
+              onBack={backToLibrary}
               onEdit={a => { setEditAgent(a); setShowModal(true); }}
               onDelete={deleteAgent}
-              onDownload={handleDownload}
+              onDownload={a => { handleDownload(a); showToast("Download started"); }}
+              onCopyLink={copyAgentLink}
               onRemoveClientTag={removeClientTag}
             />
           ) : (
@@ -2086,6 +2210,9 @@ export default function AgentLibrary() {
                     <Ic.plus /> New Agent
                   </button>
                 )}
+                <button style={S.btnS} onClick={() => setShowRequest(true)}>
+                  <Ic.message /> Request an Agent
+                </button>
               </div>
               {(activeFilters.length > 0 || search) && (
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginBottom: 18, marginTop: -10 }}>
@@ -2125,7 +2252,7 @@ export default function AgentLibrary() {
                     <div style={S.grid}>
                       {filtered.map(agent => (
                         <div key={agent.id} style={S.card}
-                          onClick={() => { setSelected(agent); setView("detail"); }}
+                          onClick={() => openAgent(agent)}
                           onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 8px 24px rgba(2,48,73,0.11)`; e.currentTarget.style.borderColor = STEEL; }}
                           onMouseLeave={e => { e.currentTarget.style.boxShadow = `0 2px 6px rgba(2,48,73,0.05)`; e.currentTarget.style.borderColor = TAN; }}>
                           <div style={S.cardSuper}><Ic.zap /> {agent.solution || "—"}</div>
@@ -2206,6 +2333,22 @@ export default function AgentLibrary() {
           onAddSolution={addSolution}
           onAddClientName={addClientName}
         />
+      )}
+
+      {showRequest && (
+        <RequestAgentModal userName={user?.name} onClose={() => setShowRequest(false)} />
+      )}
+
+      {toast && (
+        <div style={{
+          position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)",
+          background: NAVY, color: WHITE, padding: "12px 22px", borderRadius: 10,
+          fontSize: 15, fontWeight: 500, boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
+          zIndex: 3000, display: "flex", alignItems: "center", gap: 8,
+        }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7fe0a0" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          {toast}
+        </div>
       )}
  
     </div>
